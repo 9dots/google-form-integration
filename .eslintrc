@@ -1,0 +1,41 @@
+{
+  "extends": [
+    "standard",
+    "plugin:flowtype/recommended",
+    "plugin:react/recommended"
+  ],
+  "parser": "babel-eslint",
+  "plugins": [
+    "flowtype",
+    "react"
+  ],
+  "settings": {
+    "flowtype": {
+      "onlyFilesWithFlowAnnotation": true
+    }
+  },
+  "rules": {
+    "jsx-quotes": [
+      "error",
+      "prefer-single"
+    ],
+    "react/jsx-uses-vars": 2,
+    "react/react-in-jsx-scope": 0,
+    "react/prop-types": [
+      0
+    ],
+    "react/jsx-closing-bracket-location": [
+      2,
+      {
+        "selfClosing": "after-props",
+        "nonEmpty": "after-props"
+      }
+    ],
+    "react/jsx-tag-spacing": [
+      2,
+      {
+        "beforeSelfClosing": "always"
+      }
+    ]
+  }
+}

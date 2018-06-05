@@ -3,6 +3,8 @@ const fetch = require('isomorphic-fetch')
 const express = require('express')
 const cheerio = require('cheerio')
 
+const byActivityId = {}
+
 module.exports = function (app) {
   const route = express.Router()
   route.use(bodyParser.json())
@@ -24,6 +26,7 @@ module.exports = function (app) {
   })
 
   route.post('/copy', (req, res) => {
+    const { tasks } = req.body
     return res.json({ ok: true })
   })
 }

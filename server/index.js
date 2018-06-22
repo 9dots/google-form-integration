@@ -35,4 +35,4 @@ app.get('/form/:id', async (req, res) => {
 })
 
 api(app)
-app.listen(process.env.port || 5000)
+app.listen(process.env.PORT || 5000)

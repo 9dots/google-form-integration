@@ -1,0 +1,6 @@
+
+{
+  "name": "Image",
+  "main": "Image.js",
+  "browser": "Image.js"
+}

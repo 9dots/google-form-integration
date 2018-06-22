@@ -26,7 +26,6 @@ module.exports = function (app) {
 
   route.post('/unfurl', async (req, res) => {
     const { access_token, taskUrl } = req.body
-    console.log(access_token, taskUrl)
     return addPermission(taskUrl, access_token)
       .then(() => getTitle(taskUrl))
       .then(tasks => res.json({ ok: true, tasks: [tasks] }))

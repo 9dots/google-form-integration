@@ -1,6 +1,6 @@
 import { default as FormDisplay } from '../src/components/FormDisplay'
+import getServiceAccount from '../getServiceAccount'
 import { renderToString } from 'react-dom/server'
-import serviceAccount from '../secrets.json'
 import template from '../build/template'
 import bodyParser from 'body-parser'
 import admin from 'firebase-admin'
@@ -9,7 +9,7 @@ import React from 'react'
 import path from 'path'
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(getServiceAccount()),
   databaseURL: 'https://forms-integration-93a90.firebaseio.com'
 })
 const tasksRef = admin.database().ref('/tasks')

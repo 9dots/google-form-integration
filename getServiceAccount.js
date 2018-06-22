@@ -8,8 +8,9 @@ module.exports = function getServiceAccount (env) {
 
 function getProd () {
   try {
-    return require('./secret.json')
+    return require('./secrets.json')
   } catch (e) {
+    console.log(process.env)
     return {
       projectId: process.env.PROJECT_ID,
       clientEmail: process.env.CLIENT_EMAIL,

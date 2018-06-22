@@ -9,6 +9,7 @@ import React from 'react'
 import path from 'path'
 
 const cert = getServiceAccount()
+console.log(cert)
 
 admin.initializeApp({
   credential: admin.credential.cert(cert),

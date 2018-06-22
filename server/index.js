@@ -12,6 +12,7 @@ const cert = getServiceAccount()
 console.log(cert)
 
 admin.initializeApp({
+  credential: admin.credential.cert(cer),
   databaseURL: 'https://forms-integration-93a90.firebaseio.com'
 })
 const tasksRef = admin.database().ref('/tasks')

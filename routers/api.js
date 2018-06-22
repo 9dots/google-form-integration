@@ -74,7 +74,9 @@ async function getTitle (taskUrl) {
 
 async function createInstances (tasks) {
   return tasks.map(task => ({
-    instance: `http://localhost:5000/form/${task.task}?id=${task.update.id}`,
+    instance: `https://google-form-integration.herokuapp.com/form/${
+      task.task
+    }?id=${task.update.id}`,
     id: task.update.id
   }))
 }

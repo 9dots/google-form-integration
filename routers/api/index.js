@@ -24,10 +24,10 @@ module.exports = function (app) {
 
   route.post('/copy', async (req, res) => {
     const { tasks = [] } = req.body
-    const instances = await fetchFormCopies(getNewForms(tasks))
+    return fetchFormCopies(getNewForms(tasks))
       .then(mergeCopies(tasks))
       .then(createInstances)
+      .then(instances => res.json({ ok: true, instances }))
       .catch(e => res.json({ ok: false, error: e }))
-    return res.json({ ok: true, instances })
   })
 }

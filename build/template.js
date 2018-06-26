@@ -10,8 +10,8 @@ module.exports = html => `<!DOCTYPE html>
 </head>
 
 <body>
-  <div id="root"></div>
-  <script type="text/javascript" src="/static/js/main.0872f49b.js"></script>
+  <div id="root">${html}</div>
+  <script type="text/javascript" src="/static/js/main.0a0f4fac.js"></script>
 </body>
 
 </html>`

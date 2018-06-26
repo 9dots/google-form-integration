@@ -1,4 +1,4 @@
-import { compose, withHandlers, withProps } from 'recompose'
+import { compose, withProps } from 'recompose'
 import fetch from 'isomorphic-fetch'
 import { withFormik } from 'formik'
 import setProp from '@f/set-prop'
@@ -21,8 +21,22 @@ export default compose(
         ).join(',')
       })
       const params = new URLSearchParams()
-      vals.forEach(val => params.append(val.key, val.value))
-      params.append('emailAddress', 'tacotest')
+      vals
+        .filter(val => !!val.value)
+        .forEach(val => params.append(val.key, val.value))
+      params.append('emailAddress', 'taco@9dotsapp.com')
+      fetch(`http://localhost:8000/api/activity.externalUpdate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Apikey ${process.env.API_KEY}`
+        },
+        body: JSON.stringify({
+          progress: 100,
+          completed: true,
+          id: props.taskId
+        })
+      }).catch(console.error)
       fetch(
         `https://docs.google.com${props.data.path}/d/${
           props.data.action
@@ -32,7 +46,7 @@ export default compose(
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
           },
-          mode: 'no-cors',
+          // mode: 'no-cors',
           body: params
         }
       )
@@ -49,11 +63,6 @@ export default compose(
       return { ...errors, ...checkEmail(props.data, values) }
     },
     mapPropsToValues: props => initValues(props.data, props.widgets)
-  }),
-  withHandlers({
-    onSubmit: props => e => {
-      console.log(cast)
-    }
   })
 )
 

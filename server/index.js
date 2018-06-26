@@ -9,7 +9,6 @@ import React from 'react'
 import path from 'path'
 
 const cert = getServiceAccount()
-console.log(cert)
 
 admin.initializeApp({
   credential: admin.credential.cert(cert),
@@ -17,10 +16,23 @@ admin.initializeApp({
 })
 const tasksRef = admin.database().ref('/tasks')
 
-const api = require('../routers/api')
+const api = require('../routers/api/index')
 const app = express()
 app.use(express.static(path.resolve(__dirname, '../build')))
 app.use(bodyParser.json())
+
+app.get('/teacher/:id', async (req, res) => {
+  const { id } = req.params
+  const snap = await tasksRef
+    .child(id)
+    .child('summary')
+    .once('value')
+  const url = snap.val()
+  if (!url) {
+    return res.send('not found')
+  }
+  return res.redirect(url)
+})
 
 app.get('/form/:id', async (req, res) => {
   const snap = await tasksRef
@@ -30,7 +42,10 @@ app.get('/form/:id', async (req, res) => {
 
   if (!snap.exists()) return res.send('not found')
 
-  res.write(template(renderToString(<FormDisplay data={snap.val()} />)))
+  const taskId = req.query.id
+  res.write(
+    template(renderToString(<FormDisplay data={snap.val()} taskId={taskId} />))
+  )
   res.end()
 })
 

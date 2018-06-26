@@ -12,6 +12,7 @@ firebase.initializeApp({
   projectId: 'forms-integration-93a90'
 })
 
+const taskId = getUrlParameter('id')
 const [, id] = pathRe.exec(document.location.pathname)
 firebase
   .database()
@@ -22,7 +23,16 @@ firebase
   .then(snap => snap.val())
   .then(data =>
     ReactDOM.hydrate(
-      <FormDisplay data={data} />,
+      <FormDisplay data={data} taskId={taskId} />,
       document.querySelector('#root')
     )
   )
+
+function getUrlParameter (name) {
+  name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]')
+  var regex = new RegExp('[\\?&]' + name + '=([^&#]*)')
+  var results = regex.exec(window.location.search)
+  return results === null
+    ? ''
+    : decodeURIComponent(results[1].replace(/\+/g, ' '))
+}

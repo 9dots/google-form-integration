@@ -28,7 +28,7 @@ describe('API', function () {
     // Get our router module, with a stubbed out users dependency
     // we stub this out so we can control the results returned by
     // the users module to ensure we execute all paths in our code
-    route = require('./routers/api')
+    route = require('./routers/api/index')
 
     // Bind a route to our application
     route(app)

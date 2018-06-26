@@ -3,7 +3,7 @@
   "scripts": {
     "dev": "nodemon -r dotenv/config server/bootstrap.js",
     "test": "mocha test.js",
-    "start": "node -r dotenv/config forever server/bootstrap.js",
+    "start": "node -r dotenv/config node_modules/.bin/forever server/bootstrap.js",
     "start:client": "react-app-rewired start",
     "build": "react-app-rewired build",
     "eject": "react-app-rewired eject"

@@ -42,11 +42,9 @@ export async function getTitle (taskUrl) {
 
 export async function createInstances (tasks) {
   return tasks.map(task => ({
-    instance: path.join(
+    instance: url.resolve(
       process.env.API_HOST,
-      'form',
-      task.task,
-      `?id=${task.update.id}`
+      `form/${task.task}?id=${task.update.id}`
     ),
     id: task.update.id
   }))

@@ -1,7 +1,18 @@
-import { compose, withProps } from 'recompose'
-import fetch from 'isomorphic-fetch'
+import {
+  compose,
+  withProps,
+  lifecycle,
+  withHandlers,
+  withStateHandlers
+} from 'recompose'
+import firebase from 'firebase/app'
 import { withFormik } from 'formik'
 import setProp from '@f/set-prop'
+import filter from '@f/filter'
+import { f } from '../../utils'
+
+const firestore = firebase.firestore()
+const responsesCol = firestore.collection('responses')
 
 export default compose(
   withProps(({ data = {} }) => ({
@@ -10,6 +21,9 @@ export default compose(
       .reduce((acc, f) => acc.concat(f.widgets), [])
       .filter(w => !!w)
   })),
+  withStateHandlers(props => ({ submitted: props.submitted }), {
+    setSubmitted: () => () => ({ submitted: true })
+  }),
   withFormik({
     displayName: 'displayForm',
     handleSubmit: (values, { props }) => {
@@ -25,33 +39,26 @@ export default compose(
         .filter(val => !!val.value)
         .forEach(val => params.append(val.key, val.value))
       params.append('emailAddress', 'taco@9dotsapp.com')
-      fetch(`http://localhost:8000/api/activity.externalUpdate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Apikey ${process.env.API_KEY}`
-        },
-        body: JSON.stringify({
-          progress: 100,
-          completed: true,
-          id: props.taskId
-        })
-      }).catch(console.error)
-      fetch(
+      f(
         `https://docs.google.com${props.data.path}/d/${
           props.data.action
         }/formResponse`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
-          },
-          // mode: 'no-cors',
-          body: params
-        }
+        params,
+        { mode: 'no-cors' }
       )
         .then(res => console.log('done'))
         .catch(e => console.log('done', e))
+      responsesCol.doc(props.activityId).update({ submitted: true })
+      props.setSubmitted()
+      f(
+        `http://localhost:8000/api/activity.externalUpdate`,
+        {
+          progress: 100,
+          completed: true,
+          id: props.activityId
+        },
+        `Apikey ${process.env.REACT_APP_API_KEY}`
+      ).catch(console.error)
     },
     validate: (values, props) => {
       const errors = props.widgets.reduce((acc, w) => {
@@ -62,11 +69,48 @@ export default compose(
       }, {})
       return { ...errors, ...checkEmail(props.data, values) }
     },
-    mapPropsToValues: props => initValues(props.data, props.widgets)
+    mapPropsToValues: props =>
+      initValues(props.data, props.widgets, props.response)
+  }),
+  withHandlers({
+    updateProgress: props => values => {
+      f(
+        `http://localhost:8000/api/activity.externalUpdate`,
+        {
+          progress: getProgress(values, props.widgets),
+          completed: false,
+          id: props.activityId
+        },
+        `Apikey ${process.env.REACT_APP_API_KEY}`
+      ).catch(console.error)
+      responsesCol
+        .doc(props.activityId)
+        .set(
+          { data: filter(val => val !== undefined, values) },
+          { merge: true }
+        )
+    }
+  }),
+  lifecycle({
+    componentWillUpdate (nextProps) {
+      if (nextProps.values !== this.props.values) {
+        this.props.updateProgress(nextProps.values)
+      }
+    }
   })
 )
 
-function initValues (data, widgets) {
+function getProgress (values, widgets) {
+  const completed = widgets.reduce((acc, w) => {
+    if (w.required && !values[w.id]) {
+      return acc
+    }
+    return acc + 1
+  }, 0)
+  return Math.round((completed / widgets.length) * 100)
+}
+
+function initValues (data, widgets, response = {}) {
   const fieldValues = widgets.reduce(
     (acc, w) => ({ ...acc, [w.id]: undefined }),
     {}
@@ -74,7 +118,8 @@ function initValues (data, widgets) {
   const addEmail = data.askEmail ? { emailAddress: undefined } : {}
   return {
     ...fieldValues,
-    ...addEmail
+    ...addEmail,
+    ...response
   }
 }
 

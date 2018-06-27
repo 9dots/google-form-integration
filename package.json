@@ -9,6 +9,7 @@
     "eject": "react-app-rewired eject"
   },
   "dependencies": {
+    "@f/filter": "^1.1.1",
     "@f/get-prop": "^1.1.1",
     "@f/omit": "^2.2.3",
     "@f/pick": "^1.1.4",

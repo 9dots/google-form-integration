@@ -187,6 +187,23 @@
     "@f/is-array" "^1.1.1"
     "@f/slice" "^1.1.2"
 
+"@f/filter-array@^1.0.0":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@f/filter-array/-/filter-array-1.1.1.tgz#d675be2b8997f7dd009aff5531342d1c2156b825"
+
+"@f/filter-obj@^1.0.0":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@f/filter-obj/-/filter-obj-1.1.1.tgz#58d72b178c7050a33cc46b7071c3014366debeac"
+
+"@f/filter@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@f/filter/-/filter-1.1.1.tgz#8abe39efb48024f553082d8cf9f6648cd9fa8187"
+  dependencies:
+    "@f/filter-array" "^1.0.0"
+    "@f/filter-obj" "^1.0.0"
+    "@f/is-array" "^1.0.0"
+    "@f/is-object" "^1.0.0"
+
 "@f/foreach-array@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@f/foreach-array/-/foreach-array-1.0.0.tgz#163b0ae67cd1fc18d94c451da9006c3ce1ce6da8"
@@ -221,7 +238,7 @@
     "@f/identity" "^1.1.1"
     "@f/reduce-array" "^0.2.1"
 
-"@f/is-array@^1.1.1":
+"@f/is-array@^1.0.0", "@f/is-array@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@f/is-array/-/is-array-1.1.1.tgz#cb3cd2f20016fc7b6d7049013c0318d75a222590"
 
@@ -233,7 +250,7 @@
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@f/is-number/-/is-number-1.1.1.tgz#004db64af35b89406fa27e79a17cc1bc071d0616"
 
-"@f/is-object@^1.1.1", "@f/is-object@^1.1.4":
+"@f/is-object@^1.0.0", "@f/is-object@^1.1.1", "@f/is-object@^1.1.4":
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/@f/is-object/-/is-object-1.1.4.tgz#278ddc91bd13645ac0b73963539e0e52677b7494"
   dependencies:

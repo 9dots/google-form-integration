@@ -14,7 +14,10 @@ admin.initializeApp({
   credential: admin.credential.cert(cert),
   databaseURL: 'https://forms-integration-93a90.firebaseio.com'
 })
-const tasksRef = admin.database().ref('/tasks')
+
+const firestore = admin.firestore()
+const tasksCol = firestore.collection('tasks')
+const responsesCol = firestore.collection('responses')
 
 const api = require('../routers/api/index')
 const app = express()
@@ -23,11 +26,10 @@ app.use(bodyParser.json())
 
 app.get('/teacher/:id', async (req, res) => {
   const { id } = req.params
-  const snap = await tasksRef
-    .child(id)
-    .child('summary')
-    .once('value')
-  const url = snap.val()
+  const url = await tasksCol
+    .doc(id)
+    .get()
+    .then(doc => doc.get('summary'))
   if (!url) {
     return res.send('not found')
   }
@@ -35,16 +37,28 @@ app.get('/teacher/:id', async (req, res) => {
 })
 
 app.get('/form/:id', async (req, res) => {
-  const snap = await tasksRef
-    .child(req.params.id)
-    .child('json')
-    .once('value')
+  const data = await tasksCol
+    .doc(req.params.id)
+    .get()
+    .then(doc => doc.get('json'))
 
-  if (!snap.exists()) return res.send('not found')
+  if (!data) return res.send('not found')
 
-  const taskId = req.query.id
+  const activityId = req.query.id
+  const response = await responsesCol
+    .doc(activityId)
+    .get()
+    .then(snap => snap.data())
   res.write(
-    template(renderToString(<FormDisplay data={snap.val()} taskId={taskId} />))
+    template(
+      renderToString(
+        <FormDisplay
+          data={data}
+          activityId={activityId}
+          response={response.data}
+          submitted={response.submitted} />
+      )
+    )
   )
   res.end()
 })

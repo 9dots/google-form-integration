@@ -43,7 +43,7 @@ export async function getTitle (taskUrl) {
 export async function createInstances (tasks) {
   return tasks.map(task => ({
     instance: url.resolve(
-      process.env.API_HOST,
+      process.env.REACT_APP_API_HOST,
       `form/${task.task}?id=${task.update.id}`
     ),
     id: task.update.id

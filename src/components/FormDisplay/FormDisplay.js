@@ -10,6 +10,7 @@ import { Button } from 'antd'
 const FormDisplay = props => {
   const { fields = [], title, desc, askEmail, emailAddress } = props.data
   const formProps = pick(fieldFormProps, props)
+  if (props.submitted) return <span> Done </span>
   return (
     <form style={{ width: '50%', margin: '0 auto' }}>
       {title && <Components.Title title={title} desc={desc} />}

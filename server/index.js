@@ -45,10 +45,12 @@ app.get('/form/:id', async (req, res) => {
   if (!data) return res.send('not found')
 
   const activityId = req.query.id
-  const response = await responsesCol
-    .doc(activityId)
-    .get()
-    .then(snap => snap.data())
+  const response = activityId
+    ? await responsesCol
+      .doc(activityId)
+      .get()
+      .then(snap => (snap.exists ? snap.data() : {}))
+    : {}
   res.write(
     template(
       renderToString(

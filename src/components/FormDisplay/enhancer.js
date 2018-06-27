@@ -5,11 +5,20 @@ import {
   withHandlers,
   withStateHandlers
 } from 'recompose'
+import 'firebase/firestore'
 import firebase from 'firebase/app'
 import { withFormik } from 'formik'
 import setProp from '@f/set-prop'
 import filter from '@f/filter'
 import { f } from '../../utils'
+
+if (firebase.apps.length === 0) {
+  firebase.initializeApp({
+    apiKey: 'AIzaSyBZh6xZT0FXkl_Gg1a2PI-NWaW9PUOQca8',
+    databaseURL: 'https://forms-integration-93a90.firebaseio.com',
+    projectId: 'forms-integration-93a90'
+  })
+}
 
 const firestore = firebase.firestore()
 const responsesCol = firestore.collection('responses')

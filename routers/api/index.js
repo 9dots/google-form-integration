@@ -28,9 +28,6 @@ module.exports = function (app) {
       .then(mergeCopies(tasks))
       .then(createInstances)
       .then(instances => res.json({ ok: true, instances }))
-      .catch(e => {
-        console.error(e)
-        return res.json({ ok: false, error: e })
-      })
+      .catch(e => res.json({ ok: false, error: e }))
   })
 }

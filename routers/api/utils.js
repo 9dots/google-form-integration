@@ -35,7 +35,7 @@ export async function getTitle (taskUrl) {
   const title = $('title').text()
   return {
     displayName: title,
-    type: 'test',
+    type: 'practice',
     url: taskUrl
   }
 }

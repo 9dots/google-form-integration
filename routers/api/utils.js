@@ -3,18 +3,25 @@ const fetch = require('isomorphic-fetch')
 const htmlToJson = require('../lib/form')
 const admin = require('firebase-admin')
 const cheerio = require('cheerio')
-const path = require('path')
 const url = require('url')
 
-const formsUrl = process.env.FORMS_APP_SCRIPT
+const formsUrl = process.env.REACT_APP_FORMS_APP_SCRIPT
 const pathRe = toRegexp('/forms/d/:id/edit')
-const tasksRef = admin.database().ref('/tasks')
+const tasksRef = admin.firestore().collection('tasks')
 
-export async function addPermission (taskUrl, access_token) {
-  const path = url.parse(taskUrl).pathname
-  const [, id] = pathRe.exec(path)
+module.exports = {
+  fetchFormCopies,
+  createInstances,
+  parseIdFromTask,
+  addPermission,
+  getNewForms,
+  mergeCopies,
+  getTitle
+}
+
+async function addPermission (id, access_token) {
   return fetch(
-    `https://www.googleapis.com/drive/v3/files/${id}/permissions?access_token=${access_token}`,
+    `https://www.googleapis.com/drive/v3/files/${id}/permissions?supportsTeamDrives=true&access_token=${access_token}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -26,7 +33,7 @@ export async function addPermission (taskUrl, access_token) {
   ).catch(() => 'insufficient_permissions')
 }
 
-export async function getTitle (taskUrl) {
+async function getTitle (taskUrl) {
   const form = await fetch(taskUrl, {
     headers: { Accept: 'text/html' }
   })
@@ -40,7 +47,7 @@ export async function getTitle (taskUrl) {
   }
 }
 
-export async function createInstances (tasks) {
+async function createInstances (tasks) {
   return tasks.map(task => ({
     instance: url.resolve(
       process.env.REACT_APP_API_HOST,
@@ -50,7 +57,7 @@ export async function createInstances (tasks) {
   }))
 }
 
-export function mergeCopies (tasks) {
+function mergeCopies (tasks) {
   return copies =>
     copies.reduce(
       (acc, res) =>
@@ -62,11 +69,13 @@ export function mergeCopies (tasks) {
     )
 }
 
-export async function fetchFormCopies (newForms, token) {
+async function fetchFormCopies (newForms, token) {
   return Promise.all(
     newForms.map(async task => {
-      const snap = await tasksRef.child(task.task).once('value')
-      return maybeFetch(task, snap).then(res => Object.assign({}, task, res))
+      const snap = await tasksRef.doc(task.task).get()
+      return maybeFetch(task, snap, token).then(res =>
+        Object.assign({}, task, res)
+      )
     })
   )
 
@@ -76,28 +85,48 @@ export async function fetchFormCopies (newForms, token) {
       .then(htmlToJson)
   }
 
-  async function maybeFetch (task, snap) {
-    if (snap.exists()) {
-      return { form: snap.val().form }
+  async function maybeFetch (task, snap, token) {
+    if (snap.exists) {
+      return Promise.resolve({ form: snap.get('form') })
     }
-    const { form, published, summary } = await makeCopy(task)
+    const { form, published, summary } = await makeCopy(task, token)
     const json = await publishedToJson(published)
-    tasksRef.child(task.task).set({ form, json, summary })
+    tasksRef.doc(task.task).set({ form, json, summary })
     return { form }
   }
 }
 
-function makeCopy (task) {
+async function makeCopy (task, token) {
+  const id = parseIdFromTask(task.taskUrl)
+  const res = await fetch(
+    `https://www.googleapis.com/drive/v3/files/${id}/copy?supportsTeamDrives=true`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token
+      }
+    }
+  )
+  const body = await res.json()
+  await addPermission(body.id, token)
   return fetch(formsUrl, {
     method: 'POST',
     headers: {
+      Authorization: 'Bearer ' + token,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ type: 'copy', formUrl: task.taskUrl })
+    body: JSON.stringify({ type: 'copy', formId: body.id })
   }).then(res => res.json())
 }
 
-export function getNewForms (tasks) {
+function parseIdFromTask (taskUrl) {
+  const path = url.parse(taskUrl).pathname
+  const [, id] = pathRe.exec(path)
+  return id
+}
+
+function getNewForms (tasks) {
   return tasks.reduce(
     (acc, task) =>
       acc.find(act => act.task === task.task) ? acc : acc.concat(task),

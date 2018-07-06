@@ -36,7 +36,7 @@ export default compose(
   withHandlers({
     updateProgress: props => values => {
       f(
-        `http://localhost:8000/api/activity.externalUpdate`,
+        `${process.env.REACT_APP_RESPONSE_URL}/api/activity.externalUpdate`,
         JSON.stringify({
           progress: getProgress(values, props.widgets),
           completed: false,
@@ -80,7 +80,7 @@ export default compose(
       responsesCol.doc(props.activityId).update({ submitted: true })
       props.setSubmitted()
       f(
-        `http://localhost:8000/api/activity.externalUpdate`,
+        `${process.env.REACT_APP_RESPONSE_URL}/api/activity.externalUpdate`,
         JSON.stringify({
           progress: 100,
           completed: true,

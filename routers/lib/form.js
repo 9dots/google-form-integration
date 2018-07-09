@@ -1,13 +1,14 @@
 const cheerio = require('cheerio')
 
 module.exports = function (html) {
-  return getText(html)
+  const doc = cheerio.load(html)
+  return getText(doc)
     .then(JSON.parse)
     .then(getForm)
+    .then(extractImages(doc))
 }
 
-async function getText (html) {
-  const doc = cheerio.load(html)
+async function getText (doc) {
   return doc('script')
     .filter((i, s) => {
       return doc(s)
@@ -112,7 +113,7 @@ function formatMultipleChoice (data, f) {
     src: '',
     href: o[2],
     custom: !!o[4],
-    image: o.length >= 5
+    image: o.length > 5
   }))
 
   field.widgets = [
@@ -124,4 +125,32 @@ function formatMultipleChoice (data, f) {
     }
   ]
   return field
+}
+
+function extractImages (doc) {
+  return form => {
+    const fields = form.fields.map(field => {
+      if (field.typeid === 11) {
+        const imgEl = doc(`[data-item-id=${field.id}] img`)
+        return { ...field, src: imgEl.attr('src') || '' }
+      } else {
+        const widget = field.widgets.slice()[0]
+        const imgs = doc(`[data-item-id=${field.id}] img`).get()
+        imgs.forEach(img => {
+          if (field.image && !widget.src) {
+            widget.src = img.attribs.src || ''
+          }
+          for (let i = 0; i < (widget.options || []).length; i++) {
+            let o = widget.options[i]
+            if (o.image && !o.src) {
+              o = { ...o, src: img.attribs.src || '' }
+              break
+            }
+          }
+        })
+        return { ...field, widget }
+      }
+    })
+    return { ...form, fields }
+  }
 }

@@ -23,7 +23,8 @@ async function getText (doc) {
 }
 
 function getForm (data) {
-  const extraData = data[1]
+  const extraData = data[1] || []
+  const otherExtraData = extraData[10] || []
   const fields = getFields(extraData[1]).filter(val => !!val)
   const sectionCount = fields.reduce(
     (acc, field) => (field.typeid === 8 ? acc + 1 : acc),
@@ -33,6 +34,7 @@ function getForm (data) {
     title: data[3],
     path: data[2],
     action: data[14],
+    askEmail: !!otherExtraData[4],
     fields,
     sectionCount
   }

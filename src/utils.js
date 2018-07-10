@@ -1,10 +1,14 @@
 import fetch from 'isomorphic-fetch'
 
-export function f (url, body, auth, opts) {
+const defaultHeaders = {
+  'Content-Type': 'application/json'
+}
+
+export function f (url, body, headers = {}, opts = {}) {
   return fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: auth },
-    body: JSON.stringify(body),
+    headers: { ...defaultHeaders, ...headers },
+    body,
     ...opts
   })
 }

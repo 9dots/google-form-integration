@@ -1,3 +1,9 @@
+import firebase from 'firebase/app'
+import { withFormik } from 'formik'
+import setProp from '@f/set-prop'
+import { f } from '../../utils'
+import filter from '@f/filter'
+import 'firebase/firestore'
 import {
   compose,
   withProps,
@@ -5,12 +11,6 @@ import {
   withHandlers,
   withStateHandlers
 } from 'recompose'
-import 'firebase/firestore'
-import firebase from 'firebase/app'
-import { withFormik } from 'formik'
-import setProp from '@f/set-prop'
-import filter from '@f/filter'
-import { f } from '../../utils'
 
 if (firebase.apps.length === 0) {
   firebase.initializeApp({
@@ -37,6 +37,25 @@ export default compose(
     }),
     back: ({ page }) => () => ({ page: Math.max(0, page - 1) })
   }),
+  withHandlers({
+    updateProgress: props => values => {
+      f(
+        `${process.env.REACT_APP_RESPONSE_URL}/api/activity.externalUpdate`,
+        JSON.stringify({
+          progress: getProgress(values, props.widgets),
+          completed: false,
+          id: props.activityId
+        }),
+        { Authorization: `Apikey ${process.env.REACT_APP_API_KEY}` }
+      ).catch(console.error)
+      responsesCol
+        .doc(props.activityId)
+        .set(
+          { data: filter(val => val !== undefined, values) },
+          { merge: true }
+        )
+    }
+  }),
   withFormik({
     displayName: 'displayForm',
     handleSubmit: (values, { props }) => {
@@ -51,12 +70,13 @@ export default compose(
       vals
         .filter(val => !!val.value)
         .forEach(val => params.append(val.key, val.value))
-      params.append('emailAddress', 'taco@9dotsapp.com')
+      params.append('emailAddress', props.activityId + '@9dotsapp.com')
       f(
         `https://docs.google.com${props.data.path}/d/${
           props.data.action
         }/formResponse`,
         params,
+        { 'Content-Type': 'application/x-www-form-urlencoded' },
         { mode: 'no-cors' }
       )
         .then(res => console.log('done'))
@@ -64,13 +84,13 @@ export default compose(
       responsesCol.doc(props.activityId).update({ submitted: true })
       props.setSubmitted()
       f(
-        `http://localhost:8000/api/activity.externalUpdate`,
-        {
+        `${process.env.REACT_APP_RESPONSE_URL}/api/activity.externalUpdate`,
+        JSON.stringify({
           progress: 100,
           completed: true,
           id: props.activityId
-        },
-        `Apikey ${process.env.REACT_APP_API_KEY}`
+        }),
+        { Authorization: `Apikey ${process.env.REACT_APP_API_KEY}` }
       ).catch(console.error)
     },
     validate: (values, props) => {
@@ -84,25 +104,6 @@ export default compose(
     },
     mapPropsToValues: props =>
       initValues(props.data, props.widgets, props.response)
-  }),
-  withHandlers({
-    updateProgress: props => values => {
-      f(
-        `http://localhost:8000/api/activity.externalUpdate`,
-        {
-          progress: getProgress(values, props.widgets),
-          completed: false,
-          id: props.activityId
-        },
-        `Apikey ${process.env.REACT_APP_API_KEY}`
-      ).catch(console.error)
-      responsesCol
-        .doc(props.activityId)
-        .set(
-          { data: filter(val => val !== undefined, values) },
-          { merge: true }
-        )
-    }
   }),
   lifecycle({
     componentWillUpdate (nextProps) {
@@ -123,7 +124,7 @@ function getProgress (values, widgets) {
   return Math.round((completed / widgets.length) * 100)
 }
 
-function initValues (data, widgets, response = {}) {
+function initValues (data = {}, widgets, response = {}) {
   const fieldValues = widgets.reduce(
     (acc, w) => ({ ...acc, [w.id]: undefined }),
     {}
@@ -136,7 +137,7 @@ function initValues (data, widgets, response = {}) {
   }
 }
 
-function checkEmail (data, values) {
+function checkEmail (data = {}, values) {
   if (data.askEmail && !values.emailAddress) {
     return { emailAddress: 'Required' }
   }

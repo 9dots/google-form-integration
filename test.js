@@ -54,27 +54,9 @@ describe('API', function () {
   it('Should post /copy', done => {
     const tasks = [
       {
-        task: 'aiviase-asefkase-asefasefas-asefassss',
+        task: 'aiviase-asefkase-asefasefas-asefasssasefs',
         taskUrl:
-          'https://docs.google.com/forms/d/1ux2SRrYx2-uQcP42hAXbjsD7YC7rE_xE-UK5VtAeKSs/edit',
-        update: {
-          host: 'tacos',
-          id: 'abc123'
-        }
-      },
-      {
-        task: 'aiviase-asefkase-asefasefas-asefassss',
-        taskUrl:
-          'https://docs.google.com/forms/d/1ux2SRrYx2-uQcP42hAXbjsD7YC7rE_xE-UK5VtAeKSs/edit',
-        update: {
-          host: 'tacos',
-          id: 'abc123'
-        }
-      },
-      {
-        task: 'aiviase-asefkase-asefasefas-asefa',
-        taskUrl:
-          'https://docs.google.com/forms/d/1ux2SRrYx2-uQcP42hAXbjsD7YC7rE_xE-UK5VtAeKSs/edit',
+          'https://docs.google.com/forms/d/1twz5za_Hqsa1gUTRcfP1y_gQDIRrIQ7ua7lyajPt150/edit',
         update: {
           host: 'tacos',
           id: 'abc123'

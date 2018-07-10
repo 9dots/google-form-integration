@@ -6,21 +6,22 @@ import './Linear.less'
 
 const Linear = ({ widgets, formProps }) => {
   const { options, id, required, legend } = widgets[0]
+  console.log(options)
   return (
     <span>
-      <div> {legend.first}</div>
       <FormField
         {...formProps}
         name={id}
         component={RadioField}
         key={id}
-        className='radio'>
+        className='radio-group'>
         {options.map((c, i) => (
-          <Radio key={i} name={id} value={c.label} required={required}>
+          <Radio key={i} name={id} required={required} value={c.label}>
             {c.label}
           </Radio>
         ))}
       </FormField>
+      <div> {legend.first}</div>
       <div> {legend.last}</div>
     </span>
   )

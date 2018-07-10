@@ -1,17 +1,18 @@
 import PropTypes from 'prop-types'
 import React from 'react'
+import { Layout } from 'antd'
 import './Title.less'
 
 const Title = props => {
   const { title, desc } = props
   return (
-    <fieldset>
+    <Layout.Header className='form-header'>
       <h2>
         {title}
-        <br />
-        <small>{desc}</small>
+        {/* <br /> */}
+        {/* <small>{desc}</small> */}
       </h2>
-    </fieldset>
+    </Layout.Header>
   )
 }
 

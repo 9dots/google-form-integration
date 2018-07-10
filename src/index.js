@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom'
 import 'firebase/firestore'
 import 'firebase/database'
 import React from 'react'
+import './index.less'
 
 const pathRe = toRegexp('/form/:id')
 
@@ -20,11 +21,13 @@ const FormDisplay = require('./components/FormDisplay').default
 const activityId = getUrlParameter('id')
 const [, id] = pathRe.exec(document.location.pathname)
 
-const respPromise = firestore
-  .collection('responses')
-  .doc(activityId)
-  .get()
-  .then(snap => snap.data())
+const respPromise = activityId
+  ? firestore
+    .collection('responses')
+    .doc(activityId)
+    .get()
+    .then(snap => (snap.exists ? snap.data() : {}))
+  : Promise.resolve({})
 const dataPromise = firestore
   .collection('tasks')
   .doc(id)

@@ -29,7 +29,7 @@ class Choice extends React.PureComponent {
           next.values[`other_option_response_${id}`]
         }
         key={id}
-        className='radio'>
+        className='radio-group'>
         {options.map(
           (c, i) =>
             c.custom ? (
@@ -41,6 +41,7 @@ class Choice extends React.PureComponent {
                     this.state.otherChoiceRef.current.input.current.focus()
                   }}
                   name={id}
+                  className='radio other'
                   value='__other_option__'>
                   {c.label || 'Other: '}
                   <FormField
@@ -61,10 +62,12 @@ class Choice extends React.PureComponent {
               </span>
             ) : (
               <span key={i}>
+                {console.log(c)}
                 {c.src && <img src={c.src} />}
                 <Radio
                   style={radioStyle}
                   name={id}
+                  className='radio other'
                   value={c.label}
                   required={required}>
                   {c.label}

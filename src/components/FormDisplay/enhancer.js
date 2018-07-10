@@ -30,8 +30,12 @@ export default compose(
       .reduce((acc, f) => acc.concat(f.widgets), [])
       .filter(w => !!w)
   })),
-  withStateHandlers(props => ({ submitted: props.submitted }), {
-    setSubmitted: () => () => ({ submitted: true })
+  withStateHandlers(props => ({ submitted: props.submitted, page: 0 }), {
+    setSubmitted: () => () => ({ submitted: true }),
+    next: ({ page }, { data }) => () => ({
+      page: Math.min(page + 1, data.fields.length - 1)
+    }),
+    back: ({ page }) => () => ({ page: Math.max(0, page - 1) })
   }),
   withFormik({
     displayName: 'displayForm',

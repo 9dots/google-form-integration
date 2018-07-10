@@ -8,7 +8,7 @@ const Paragraph = ({ widgets, formProps }) => (
     {...formProps}
     id={widgets[0].id}
     name={widgets[0].id}
-    className='form-control'
+    className='form-paragraph'
     required={widgets[0].required}
     component={TextAreaField} />
 )

@@ -5,9 +5,9 @@ const admin = require('firebase-admin')
 const cheerio = require('cheerio')
 const url = require('url')
 
-const formsUrl = process.env.REACT_APP_FORMS_APP_SCRIPT
-const pathRe = toRegexp('/forms/d/:id/edit')
+const formsUrl = process.env.FORMS_APP_SCRIPT
 const tasksRef = admin.firestore().collection('tasks')
+const pathRe = toRegexp('/forms/d/:id/edit')
 
 module.exports = {
   fetchFormCopies,
@@ -20,14 +20,32 @@ module.exports = {
 }
 
 async function addPermission (id, access_token) {
-  return fetch(
+  const permissionPromise = fetch(
     `https://www.googleapis.com/drive/v3/files/${id}/permissions?supportsTeamDrives=true&access_token=${access_token}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        role: 'writer',
+        role: 'reader',
         type: 'anyone'
+      })
+    }
+  )
+  return Promise.all([
+    permissionPromise,
+    setReaderCanCopy(id, access_token)
+  ]).catch(() => 'insufficient_permissions')
+}
+
+function setReaderCanCopy (id, access_token) {
+  return fetch(
+    `https://www.googleapis.com/drive/v3/files/${id}?supportsTeamDrives=true&access_token=${access_token}`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        viewersCanCopyContent: true,
+        copyRequiresWriterPermission: false
       })
     }
   ).catch(() => 'insufficient_permissions')
@@ -89,7 +107,8 @@ async function fetchFormCopies (newForms, token) {
     if (snap.exists) {
       return Promise.resolve({ form: snap.get('form') })
     }
-    const { form, published, summary } = await makeCopy(task, token)
+    const { ok, error, form, published, summary } = await makeCopy(task, token)
+    console.log(ok, error)
     const json = await publishedToJson(published)
     tasksRef.doc(task.task).set({ form, json, summary })
     return { form }
@@ -110,6 +129,7 @@ async function makeCopy (task, token) {
   )
   const body = await res.json()
   await addPermission(body.id, token)
+  console.log('new id', formsUrl, body.id)
   return fetch(formsUrl, {
     method: 'POST',
     headers: {

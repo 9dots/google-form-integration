@@ -21,6 +21,7 @@ if (firebase.apps.length === 0) {
 }
 
 const firestore = firebase.firestore()
+firestore.settings({ timestampsInSnapshots: true })
 const responsesCol = firestore.collection('responses')
 
 export default compose(
@@ -36,13 +37,12 @@ export default compose(
   withHandlers({
     updateProgress: props => values => {
       f(
-        `${process.env.REACT_APP_RESPONSE_URL}/api/activity.externalUpdate`,
+        `${process.env.REACT_APP_API_HOST}/api/externalUpdate`,
         JSON.stringify({
           progress: getProgress(values, props.widgets),
           completed: false,
           id: props.activityId
-        }),
-        { Authorization: `Apikey ${process.env.REACT_APP_API_KEY}` }
+        })
       ).catch(console.error)
       responsesCol
         .doc(props.activityId)
@@ -80,13 +80,12 @@ export default compose(
       responsesCol.doc(props.activityId).update({ submitted: true })
       props.setSubmitted()
       f(
-        `${process.env.REACT_APP_RESPONSE_URL}/api/activity.externalUpdate`,
+        `${process.env.REACT_APP_API_HOST}/api/externalUpdate`,
         JSON.stringify({
           progress: 100,
           completed: true,
           id: props.activityId
-        }),
-        { Authorization: `Apikey ${process.env.REACT_APP_API_KEY}` }
+        })
       ).catch(console.error)
     },
     validate: (values, props) => {
@@ -112,7 +111,7 @@ export default compose(
 
 function getProgress (values, widgets) {
   const completed = widgets.reduce((acc, w) => {
-    if (w.required && !values[w.id]) {
+    if (w.required && (!values[w.id] || values[w.id].length === 0)) {
       return acc
     }
     return acc + 1

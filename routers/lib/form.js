@@ -84,6 +84,7 @@ function newFieldFromData (data) {
 }
 
 function formatLinear (data, f) {
+  const field = Object.assign({}, f)
   const widgets = data[4]
   const [widget] = widgets
   const legend = widget[3]
@@ -91,15 +92,19 @@ function formatLinear (data, f) {
   const options = opts.map(o => ({
     label: o[0]
   }))
-  f.widgets = {
-    id: widget[0],
-    required: !!widget[2],
-    options,
-    legend: {
-      first: legend[0],
-      last: legend[1]
+  field.widgets = [
+    {
+      id: widget[0],
+      required: !!widget[2],
+      image: data.length > 9,
+      options,
+      legend: {
+        first: legend[0],
+        last: legend[1]
+      }
     }
-  }
+  ]
+  return field
 }
 
 function formatMultipleChoice (data, f) {
@@ -122,6 +127,7 @@ function formatMultipleChoice (data, f) {
     {
       id: widget[0].toString(),
       required: !!widget[2],
+      image: data.length > 9,
       src: '',
       options
     }
@@ -136,21 +142,22 @@ function extractImages (doc) {
         const imgEl = doc(`[data-item-id=${field.id}] img`)
         return { ...field, src: imgEl.attr('src') || '' }
       } else {
-        const widget = field.widgets.slice()[0]
+        const widget = field.widgets.slice()[0] || null
         const imgs = doc(`[data-item-id=${field.id}] img`).get()
         imgs.forEach(img => {
-          if (field.image && !widget.src) {
+          // console.log(img.attribs.src)
+          if (widget.image && !widget.src) {
             widget.src = img.attribs.src || ''
           }
           for (let i = 0; i < (widget.options || []).length; i++) {
             let o = widget.options[i]
             if (o.image && !o.src) {
-              o = { ...o, src: img.attribs.src || '' }
+              widget.options[i] = { ...o, src: img.attribs.src || '' }
               break
             }
           }
         })
-        return { ...field, widget }
+        return { ...field, widgets: [widget] }
       }
     })
     return { ...form, fields }

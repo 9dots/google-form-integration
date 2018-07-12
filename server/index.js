@@ -29,7 +29,8 @@ app.get('/teacher/:id', async (req, res) => {
   const url = await tasksCol
     .doc(id)
     .get()
-    .then(doc => doc.get('summary'))
+    .then(doc => doc.get('form'))
+    .then(url => url + '#responses')
   if (!url) {
     return res.send('not found')
   }

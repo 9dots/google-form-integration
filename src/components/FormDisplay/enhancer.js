@@ -54,6 +54,11 @@ export default compose(
           { data: filter(val => val !== undefined, values) },
           { merge: true }
         )
+    },
+    onKeyPress: () => e => {
+      if (e.target.type !== 'textarea' && e.which === 13 /* Enter */) {
+        e.preventDefault()
+      }
     }
   }),
   withFormik({

@@ -8,8 +8,14 @@ const FormControl = props => {
     next,
     back,
     page,
-    data: { fields }
+    data: { fields },
+    handleSubmit,
+    submitted,
+    isFirst,
+    isLast
   } = props
+
+  const percent = submitted ? 100 : Math.ceil((page / fields.length) * 100)
 
   return (
     <div className='form-control-wrap'>
@@ -19,21 +25,30 @@ const FormControl = props => {
         justify='space-between'
         className='form-control'>
         <Col>
-          <Button className='form-control-btn' type='secondary' onClick={back}>
-            <Icon type='left' />
-            Back
-          </Button>
-          <Button className='form-control-btn' type='primary' onClick={next}>
-            Next
-            <Icon type='right' />
-          </Button>
+          {!submitted && (
+            <span>
+              <Button
+                disabled={isFirst}
+                className='form-control-btn'
+                type='secondary'
+                onClick={back}>
+                <Icon type='left' />
+                Back
+              </Button>
+              <Button
+                className='form-control-btn'
+                type='primary'
+                onClick={isLast ? handleSubmit : next}>
+                {isLast ? 'Submit' : 'Next'}
+                <Icon type='right' />
+              </Button>
+            </span>
+          )}
         </Col>
         <Col style={{ minWidth: 200 }}>
-          <Progress
-            strokeWidth={15}
-            percent={Math.ceil((page / fields.length) * 100)} />
+          <Progress strokeWidth={15} percent={percent} />
           <div className='page-display'>
-            Page {page + 1} of {fields.length}
+            {submitted ? 'Completed' : `Page ${page + 1} of ${fields.length}`}
           </div>
         </Col>
       </Row>

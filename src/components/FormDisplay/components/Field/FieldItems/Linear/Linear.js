@@ -1,30 +1,42 @@
 import FormField, { RadioField } from '../../../../../FieldContainer'
+import { Radio, Row, Col } from 'antd'
+import getProp from '@f/get-prop'
 import PropTypes from 'prop-types'
-import { Radio } from 'antd'
 import React from 'react'
 import './Linear.less'
 
 const Linear = ({ widgets, formProps }) => {
   const { options, id, required, legend } = widgets[0]
-  console.log(options)
+  const value = getProp(`values.${id}`, formProps)
+
   return (
-    <span>
+    <span className='linear-group-wrap'>
       <FormField
         {...formProps}
-        name={id}
+        className='linear-group'
         component={RadioField}
-        key={id}
-        className='radio-group'>
+        required={required}
+        name={id}
+        key={id}>
         {options.map((c, i) => (
-          <Radio key={i} name={id} required={required} value={c.label}>
+          <label
+            className={`form-linear ${radioClass(value, c.label)}`}
+            key={i}>
+            <Radio name={id} className='hide' value={c.label} />
             {c.label}
-          </Radio>
+          </label>
         ))}
       </FormField>
-      <div> {legend.first}</div>
-      <div> {legend.last}</div>
+      <Row type='flex' justify='space-between' className='legend'>
+        <Col>{legend.first}</Col>
+        <Col>{legend.last}</Col>
+      </Row>
     </span>
   )
+}
+
+function radioClass (value, thisValue) {
+  return value === thisValue ? 'checked' : ''
 }
 
 Linear.propTypes = {

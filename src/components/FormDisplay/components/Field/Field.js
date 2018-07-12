@@ -26,7 +26,10 @@ const Field = ({ field, formProps, page }) => {
           </legend>
           <div className='form-group'>
             {desc && <p> {desc} </p>}
-            {widget.src && typeid !== 11 && <img src={widget.src} />}
+            {widget.src &&
+              typeid !== 11 && (
+              <img className='form-main-image' src={widget.src} />
+            )}
             {React.createElement(FieldTypes[typeid] || 'div', {
               ...field,
               formProps,
@@ -47,7 +50,7 @@ const FieldTypes = [
   FieldItems.Choice, // 2
   'div', // 3 dropdown
   FieldItems.Checkboxes, // 4
-  'div', // FieldItems.Linear, // 5 linear
+  FieldItems.Linear, // 5 linear
   'div', // 6 title
   'div', // 7 grid
   'div', // 8 section

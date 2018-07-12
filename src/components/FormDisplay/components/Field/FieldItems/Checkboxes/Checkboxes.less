@@ -1,21 +1,22 @@
 /* Checkboxes less */
-
-@import (reference) "../../../../../../theme/vars/palette";
+@import (reference) "~antd/dist/antd.less";
+// @import (reference) "../../../../../../theme/vars/palette";
 @import (reference) "../../../../../../theme/mixins";
 
 // CHECKBOXES
 
-.form-checkbox-wrap {
+.form-checkbox {
+  color: @primary-color;
   margin-bottom: 25px;
   font-size: 20px;
+  cursor: pointer;
+  display: block;
   .checkbox-display {
-    cursor: pointer;
-    color: @primary-color;
     .flex-row;
-    &:hover {
-      .checkbox {
-        border-color: @primary-color;
-      }
+  }
+  &:hover {
+    .checkbox {
+      border-color: @primary-color;
     }
   }
 
@@ -24,7 +25,7 @@
     border-radius: 3px;
     margin-right: 20px;
     border: 1px solid #ccc;
-    transition: border-color 0.25s;
+    transition: all 0.2s;
     .square();
     .flex-center;
     > i {
@@ -42,6 +43,10 @@
       }
     }
   }
+
+  .other-input {
+    margin-left: 15px;
+  }
 }
 
 // CHECKBOXES WITH IMAGES
@@ -52,25 +57,23 @@
     display: flex;
     flex-wrap: wrap;
   }
-  .form-checkbox-wrap {
-    display: inline-block;
-    min-width: 164px;
-    max-width: 164px;
+  .form-checkbox {
     background: fade(@primary-color, 5);
+    transition: background-color 0.15s;
     border: 1px solid @primary-color;
     border-radius: 5px;
-    margin: 8px;
-    font-size: 15px;
-    flex: 1;
-  }
-  .form-checkbox {
+    min-width: 164px;
+    max-width: 164px;
+    font-size: 14px;
     cursor: pointer;
     padding: 10px;
-    display: flex;
+    flex: 1;
+    margin: 8px;
+    .flex-center;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    justify-content: space-between;
   }
+
   .checkbox {
     .square(20px);
     margin-right: 10px;
@@ -79,12 +82,18 @@
     height: 125px;
     width: 100%;
     margin-bottom: 15px;
-    padding: 10px;
-    background-color: white;
+    // padding: 10px;
     border-radius: 5px;
+    .flex-center;
     > div {
       .bg-contain;
       .square(100%);
     }
+  }
+  .checked {
+    background: fade(@primary-color, 15);
+  }
+  .other-input {
+    margin-left: 0px;
   }
 }

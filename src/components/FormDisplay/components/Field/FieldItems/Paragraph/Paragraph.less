@@ -1,1 +1,23 @@
 /* Paragraph less */
+
+@import (reference) "~antd/dist/antd.less";
+@import (reference) "../../../../../../theme/mixins";
+
+textarea.form-paragraph {
+  background: transparent;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  border-radius: 0;
+  &,
+  &:hover,
+  &:focus {
+    box-shadow: 0 0;
+    border-width: 0px !important;
+    border-bottom: 2px solid fade(@primary-color, 50) !important;
+  }
+  font-size: 24px;
+  &:focus {
+    padding-bottom: 19px;
+    border-bottom: 3px solid @primary-color !important;
+  }
+}

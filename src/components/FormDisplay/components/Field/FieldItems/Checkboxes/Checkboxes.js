@@ -1,10 +1,9 @@
-import FormField, {
-  TextField,
-  CheckboxField
-} from '../../../../../FieldContainer'
+import FormField, { CheckboxField } from '../../../../../FieldContainer'
+import OtherInput from '../../../../../OtherInput/'
+import { Checkbox, Icon, Row, Col } from 'antd'
 import PropTypes from 'prop-types'
 import getProp from '@f/get-prop'
-import { Checkbox, Icon, Row, Col } from 'antd'
+import enhancer from './enhancer'
 import React from 'react'
 import './Checkboxes.less'
 
@@ -14,93 +13,67 @@ const temp =
 class Checkboxes extends React.PureComponent {
   constructor (props) {
     super(props)
-    this.state = {
-      otherChoiceRef: React.createRef()
-    }
+    this.state = { otherRef: React.createRef() }
   }
   focusOther = () => {
     const { formProps, widgets } = this.props
     const { id } = widgets[0]
-    !(getProp(id, formProps.values) || []).includes('__other_option__') &&
-      this.state.otherChoiceRef.current.input.current.focus()
-  }
-  addOther = () => {
-    const { formProps, widgets } = this.props
-    const { id } = widgets[0]
-    return formProps.setFieldValue(
-      id,
-      uniqueAdd(getProp(id, formProps.values) || [], '__other_option__')
-    )
+    if (!(getProp(id, formProps.values) || []).includes('__other_option__')) {
+      this.state.otherRef.current.input.current.focus()
+    }
   }
   render () {
     const { widgets, formProps, hasImages } = this.props
     const { id, options } = widgets[0]
     const values = getProp(id, formProps.values) || []
-    console.log(options)
+    const ref = this.state.otherRef
 
     return (
-      <FormField
-        {...formProps}
-        update={(prev, next) =>
-          prev.values[`other_option_response_${id}`] !==
-          next.values[`other_option_response_${id}`]
-        }
-        component={CheckboxField}
-        className='formfield-checkbox'
-        name={id}
-        key={id}>
-        {options.map((c, i) => {
-          const value = c.custom ? '__other_option__' : c.label
-          return (
-            <div
-              key={i}
-              onClick={c.custom && this.focusOther}
-              className={`form-checkbox-wrap ${checkClass(values, value)}`}>
-              <label className='form-checkbox'>
+      <span>
+        <p style={{ paddingBottom: 10, color: '#777' }}>
+          |&emsp;Select all that apply
+        </p>
+        <FormField
+          {...formProps}
+          className='formfield-checkbox'
+          update={() => update(id)}
+          component={CheckboxField}
+          name={id}
+          key={id}>
+          {options.map((c, i) => {
+            const value = c.custom ? '__other_option__' : c.label
+            return (
+              <label
+                key={i}
+                onClick={c.custom ? this.focusOther : undefined}
+                className={`form-checkbox ${checkClass(values, value)}`}>
+                <Checkbox className='hide' value={value} />
                 {hasImages && (
                   <div className='option-image'>
-                    <div style={{ backgroundImage: `url(${c.src || temp})` }} />
+                    {c.custom ? (
+                      <OtherInput otherRef={ref} {...this.props} />
+                    ) : (
+                      <div
+                        style={{ backgroundImage: `url(${c.src || temp})` }} />
+                    )}
                   </div>
                 )}
                 <div className='flex-row'>
-                  <CheckBoxDisplay label={c.label || 'Other: '} />
-
-                  <Checkbox className='hide' value={value} />
-                  {c.custom && (
-                    <Other
-                      addOther={this.addOther}
-                      otherChoiceRef={this.state.otherChoiceRef}
-                      {...this.props} />
+                  <CheckBoxDisplay label={c.label || 'Other'} />
+                  {c.custom &&
+                    !hasImages && (
+                    <span>
+                        :<OtherInput otherRef={ref} {...this.props} />
+                    </span>
                   )}
                 </div>
               </label>
-            </div>
-          )
-        })}
-      </FormField>
+            )
+          })}
+        </FormField>
+      </span>
     )
   }
-}
-
-const Other = ({ formProps, widgets, addOther, otherChoiceRef }) => {
-  const { id } = widgets[0]
-  const name = `other_option_response_${id}`
-  return (
-    <span className='checkbox-other other-input'>
-      <FormField
-        {...formProps}
-        update={(prev, next) =>
-          getProp(id, prev.values) !== getProp(id, next.values)
-        }
-        component={TextField}
-        ref={otherChoiceRef}
-        onChange={addOther}
-        name={name}
-        key={name}
-        id={name}
-        noItem />
-    </span>
-  )
 }
 
 const CheckBoxDisplay = ({ label }) => (
@@ -112,19 +85,14 @@ const CheckBoxDisplay = ({ label }) => (
   </Row>
 )
 
-function isChecked (values = [], name) {
-  return values.indexOf(name) > -1
+function update (id) {
+  return (prev, next) =>
+    prev.values[`other_option_response_${id}`] !==
+    next.values[`other_option_response_${id}`]
 }
 
 function checkClass (values = [], name) {
-  return isChecked(values, name) ? 'checked' : ''
-}
-
-function uniqueAdd (arr, val) {
-  if (arr.indexOf(val) === -1) {
-    return arr.concat(val)
-  }
-  return arr
+  return values.indexOf(name) > -1 ? 'checked' : ''
 }
 
 Checkboxes.propTypes = {
@@ -132,4 +100,4 @@ Checkboxes.propTypes = {
   formProps: PropTypes.object
 }
 
-export default Checkboxes
+export default enhancer(Checkboxes)

@@ -1,1 +1,41 @@
 /* Linear less */
+
+@import (reference) "~antd/dist/antd.less";
+@import (reference) "../../../../../../theme/mixins";
+// @import (reference) "../../../../../../theme/vars/palette";
+
+.linear-group {
+  display: flex;
+
+  .form-linear {
+    background-color: fade(@primary-color, 10);
+    transition: background-color 0.15s;
+    border: 1px solid @primary-color;
+    color: @primary-color;
+    padding: 8px 20px;
+    flex: 1;
+    height: 100px;
+    font-size: 20px;
+    cursor: pointer;
+    border-right-width: 0;
+    .flex-center;
+
+    &:first-of-type {
+      border-radius: 5px 0 0 5px;
+    }
+    &:last-of-type {
+      border-radius: 0 5px 5px 0;
+      border-right-width: 1px;
+    }
+    &.checked {
+      background: @primary-color;
+      color: white;
+    }
+  }
+}
+
+.linear-group-wrap {
+  .legend {
+    font-size: 20px;
+  }
+}

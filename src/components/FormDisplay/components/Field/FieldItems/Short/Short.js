@@ -6,11 +6,13 @@ import './Short.less'
 const Short = ({ widgets, formProps }) => (
   <FormField
     {...formProps}
-    id={widgets[0].id}
-    type='text'
-    name={widgets[0].id}
+    placeholder='Type your response…'
     required={widgets[0].required}
-    component={TextField} />
+    className='form-short'
+    component={TextField}
+    name={widgets[0].id}
+    id={widgets[0].id}
+    type='text' />
 )
 
 Short.propTypes = {

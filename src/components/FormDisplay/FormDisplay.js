@@ -5,23 +5,45 @@ import pick from '@f/pick'
 import React from 'react'
 
 import './FormDisplay.less'
-import { Button } from 'antd'
+import { Layout } from 'antd'
+import FormControl from '../FormControl/FormControl'
+import Completed from '../Completed/Completed'
 
 const FormDisplay = props => {
-  const { fields = [], title, desc, askEmail, emailAddress } = props.data
+  const { data, page, onKeyPress } = props
+  const { fields = [], title, desc, askEmail, emailAddress } = data
   const formProps = pick(fieldFormProps, props)
-  if (props.submitted) return <span> Done </span>
+  const field = fields[page]
+  const isLast = page === fields.length - 1
+  const isFirst = !page
+
   return (
-    <form style={{ width: '50%', margin: '0 auto' }}>
+    <Layout style={{ minHeight: '100vh' }}>
       {title && <Components.Title title={title} desc={desc} />}
-      {askEmail && (
-        <Components.Email formProps={formProps} emailAddress={emailAddress} />
-      )}
-      {fields.map(field => (
-        <Components.Field formProps={formProps} key={field.id} field={field} />
-      ))}
-      <Button onClick={props.handleSubmit}>Submit</Button>
-    </form>
+      <Layout.Content style={{ margin: '0 auto', width: 700 }}>
+        {props.submitted ? (
+          <Completed />
+        ) : (
+          <form
+            style={{ width: '100%' }}
+            onKeyPress={onKeyPress}
+            autoComplete='off'>
+            <input type='hidden' autoComplete='false' />
+            {askEmail && (
+              <Components.Email
+                formProps={formProps}
+                emailAddress={emailAddress} />
+            )}
+            <Components.Field
+              formProps={formProps}
+              key={field.id}
+              field={field}
+              page={page} />
+          </form>
+        )}
+      </Layout.Content>
+      <FormControl {...props} isFirst={isFirst} isLast={isLast} />
+    </Layout>
   )
 }
 

@@ -1,1 +1,46 @@
-/* Choice less */
+/* Checkboxes less */
+
+@import (reference) "~antd/dist/antd.less";
+@import (reference) "../../../../../../theme/mixins";
+// @import (reference) "../../../../../../theme/vars/palette";
+
+// CHECKBOXES
+
+.radio-group {
+  margin: 0 -10px;
+  display: flex;
+  flex-wrap: wrap;
+  .form-radio {
+    background-color: fade(@primary-color, 10);
+    transition: background-color 0.15s;
+    border: 1px solid @primary-color;
+    color: @primary-color;
+    margin: 8px;
+    border-radius: 5px;
+    padding: 8px 20px;
+    min-width: 344px;
+    display: block;
+    font-size: 20px;
+    cursor: pointer;
+    &.checked {
+      background: @primary-color;
+      color: white;
+    }
+  }
+  .other-input {
+    margin-left: 15px;
+  }
+}
+
+.image-options {
+  .form-radio {
+    padding: 10px;
+    min-width: 164px;
+    max-width: 164px;
+    text-align: center;
+    font-size: 18px;
+  }
+  .other-input {
+    margin-left: 0px;
+  }
+}

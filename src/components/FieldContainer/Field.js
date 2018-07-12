@@ -62,7 +62,7 @@ class BaseComponent extends React.Component {
           // hasFeedback: !!getProp(name, touched) && !!getProp(name, errors),
           validateStatus:
               getProp(name, touched) && getProp(name, errors) && 'error',
-          help: getProp(name, touched) && getProp(name, errors),
+          // help: getProp(name, touched) && getProp(name, errors),
           label,
           ...itemProps
         },
@@ -99,8 +99,7 @@ const TextField = props => {
         setFieldValue(name, event.target.value, true)
         onChange(event)
       }}
-      onBlur={() => setFieldTouched(name, true, true)}
-      onPressEnter={handleSubmit} />
+      onBlur={() => setFieldTouched(name, true, true)} />
   )
 }
 

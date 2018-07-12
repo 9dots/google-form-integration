@@ -6,11 +6,13 @@ import './Paragraph.less'
 const Paragraph = ({ widgets, formProps }) => (
   <FormField
     {...formProps}
-    id={widgets[0].id}
-    name={widgets[0].id}
-    className='form-control'
+    placeholder='Type your response here…'
     required={widgets[0].required}
-    component={TextAreaField} />
+    className='form-paragraph'
+    component={TextAreaField}
+    autosize
+    name={widgets[0].id}
+    id={widgets[0].id} />
 )
 
 Paragraph.propTypes = {

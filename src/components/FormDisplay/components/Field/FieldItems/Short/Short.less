@@ -1,1 +1,20 @@
 /* Short less */
+
+@import (reference) "~antd/dist/antd.less";
+@import (reference) "../../../../../../theme/mixins";
+
+input[type="text"].form-short {
+  padding: 35px 20px;
+  border-radius: 7px;
+  &,
+  &:hover,
+  &:focus {
+    border: 2px solid fade(@primary-color, 50) !important;
+  }
+  font-size: 24px;
+  &:focus {
+    padding: 34px 19px;
+    box-shadow: 0 0;
+    border: 3px solid @primary-color !important;
+  }
+}

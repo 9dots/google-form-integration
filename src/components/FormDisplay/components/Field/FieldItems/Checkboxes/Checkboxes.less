@@ -1,1 +1,99 @@
 /* Checkboxes less */
+@import (reference) "~antd/dist/antd.less";
+// @import (reference) "../../../../../../theme/vars/palette";
+@import (reference) "../../../../../../theme/mixins";
+
+// CHECKBOXES
+
+.form-checkbox {
+  color: @primary-color;
+  margin-bottom: 25px;
+  font-size: 20px;
+  cursor: pointer;
+  display: block;
+  .checkbox-display {
+    .flex-row;
+  }
+  &:hover {
+    .checkbox {
+      border-color: @primary-color;
+    }
+  }
+
+  .checkbox {
+    background: white;
+    border-radius: 3px;
+    margin-right: 20px;
+    border: 1px solid #ccc;
+    transition: all 0.2s;
+    .square();
+    .flex-center;
+    > i {
+      font-weight: bold;
+      margin-bottom: -2px;
+      color: white;
+    }
+  }
+  &.checked {
+    .checkbox {
+      border-color: @primary-color;
+      background: @primary-color;
+      > i {
+        display: block;
+      }
+    }
+  }
+
+  .other-input {
+    margin-left: 15px;
+  }
+}
+
+// CHECKBOXES WITH IMAGES
+
+.image-options {
+  .formfield-checkbox {
+    margin: 0 -10px;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .form-checkbox {
+    background: fade(@primary-color, 5);
+    transition: background-color 0.15s;
+    border: 1px solid @primary-color;
+    border-radius: 5px;
+    min-width: 164px;
+    max-width: 164px;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 10px;
+    flex: 1;
+    margin: 8px;
+    .flex-center;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .checkbox {
+    .square(20px);
+    margin-right: 10px;
+  }
+  .option-image {
+    height: 125px;
+    width: 100%;
+    margin-bottom: 15px;
+    // padding: 10px;
+    border-radius: 5px;
+    .flex-center;
+    > div {
+      .bg-contain;
+      .square(100%);
+    }
+  }
+  .checked {
+    background: fade(@primary-color, 15);
+  }
+  .other-input {
+    margin-left: 0px;
+  }
+}

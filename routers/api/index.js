@@ -1,5 +1,6 @@
 const bodyParser = require('body-parser')
 const fetch = require('isomorphic-fetch')
+const admin = require('firebase-admin')
 const express = require('express')
 const {
   fetchFormCopies,
@@ -10,6 +11,8 @@ const {
   mergeCopies,
   getTitle
 } = require('./utils')
+
+const responsesCol = admin.firestore().collection('responses')
 
 module.exports = function (app) {
   const route = express.Router()
@@ -27,6 +30,12 @@ module.exports = function (app) {
 
   route.post('/externalUpdate', async (req, res) => {
     try {
+      responsesCol
+        .doc(props.activityId)
+        .set(
+          { data: filter(val => val !== undefined, values) },
+          { merge: true }
+        )
       const response = await fetch(
         `${process.env.RESPONSE_URL}/api/activity.externalUpdate`,
         {

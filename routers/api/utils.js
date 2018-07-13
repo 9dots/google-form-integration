@@ -129,7 +129,6 @@ async function makeCopy (task, token) {
   )
   const body = await res.json()
   await addPermission(body.id, token)
-  console.log('new id', formsUrl, body.id)
   return fetch(formsUrl, {
     method: 'POST',
     headers: {

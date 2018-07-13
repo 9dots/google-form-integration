@@ -8,6 +8,7 @@ module.exports = function override (config, env) {
     config
   )
   config = rewireLess.withLoaderOptions({
+    javascriptEnabled: true,
     modifyVars: theme
   })(config, env)
   return config

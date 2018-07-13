@@ -3,7 +3,7 @@ import { withFormik } from 'formik'
 import setProp from '@f/set-prop'
 import { f } from '../../utils'
 import filter from '@f/filter'
-import { message, Modal } from 'antd'
+import { Modal } from 'antd'
 import 'firebase/firestore'
 import {
   compose,
@@ -40,7 +40,6 @@ export default compose(
     back: ({ page }) => () => ({ page: Math.max(0, page - 1) }),
     goTo: () => newPage => ({ page: newPage })
   }),
-
   withFormik({
     displayName: 'displayForm',
     handleSubmit: (values, { props }) => {
@@ -66,7 +65,9 @@ export default compose(
       )
         .then(res => console.log('done'))
         .catch(e => console.log('done', e))
-      responsesCol.doc(props.activityId).update({ submitted: true })
+      responsesCol
+        .doc(props.activityId)
+        .set({ submitted: true }, { merge: true })
       props.setSubmitted()
       f(
         `${process.env.REACT_APP_API_HOST}/api/externalUpdate`,
@@ -140,7 +141,7 @@ export default compose(
   }),
   lifecycle({
     componentWillUpdate (nextProps) {
-      if (nextProps.values !== this.props.values) {
+      if (nextProps.page !== this.props.page) {
         this.props.updateProgress(nextProps.values)
       }
     }

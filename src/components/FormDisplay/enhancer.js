@@ -112,8 +112,8 @@ export default compose(
       const errors = validate(values, props)
 
       if (Object.keys(errors).length) {
-        const index = fields.findIndex(({ widgets }) =>
-          widgets.some(({ id }) => errors[id])
+        const index = fields.findIndex(({ widgets = [] }) =>
+          widgets.filter(val => !!val).some(({ id }) => errors[id])
         )
         Modal.confirm({
           title: 'Your form is incomplete!',

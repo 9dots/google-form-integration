@@ -11,28 +11,6 @@ class BaseComponent extends React.Component {
     super(props)
     this.input = React.createRef()
   }
-  shouldComponentUpdate (nextProps) {
-    const {
-      children = [],
-      options,
-      submitCount,
-      name,
-      update = () => {}
-    } = this.props
-    const optsChanged = options !== nextProps.options
-    const nameChanged = name !== nextProps.name
-    const childrenChanged =
-      children.length !== (nextProps.children || []).length
-    const submitChange = submitCount !== nextProps.submitCount
-    return (
-      submitChange ||
-      optsChanged ||
-      nameChanged ||
-      childrenChanged ||
-      update(this.props, nextProps) ||
-      isChanged(this.props, nextProps)
-    )
-  }
   componentDidUpdate (prevProps) {
     if (
       this.props.scrollOnError &&
@@ -54,6 +32,8 @@ class BaseComponent extends React.Component {
       name
     } = this.props
 
+    const strName = name.toString()
+
     return createElement(
       noItem ? 'div' : Form.Item,
       noItem
@@ -61,8 +41,8 @@ class BaseComponent extends React.Component {
         : {
           // hasFeedback: !!getProp(name, touched) && !!getProp(name, errors),
           validateStatus:
-              getProp(name, touched) && getProp(name, errors) && 'error',
-          // help: getProp(name, touched) && getProp(name, errors),
+              getProp(strName, touched) && getProp(strName, errors) && 'error',
+          help: getProp(strName, touched) && getProp(strName, errors),
           label,
           ...itemProps
         },

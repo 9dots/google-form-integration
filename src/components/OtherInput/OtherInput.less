@@ -1,1 +1,24 @@
 /* OtherInput less */
+
+@import (reference) "~antd/dist/antd.less";
+// @import (reference) "../../../../../../theme/mixins";
+
+.other (@color: @primary-color) {
+  input.ant-input {
+    border-color: @normal-color;
+    &:hover {
+      border-color: lighten(@color, 10);
+    }
+    &:focus {
+      border-color: @color;
+      box-shadow: 0 0 @outline-blur-size @outline-width fade(@color, 20%);
+    }
+  }
+}
+
+&,
+&.has-error {
+  .other-input {
+    .other();
+  }
+}

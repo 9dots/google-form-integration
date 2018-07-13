@@ -8,7 +8,7 @@ import './Field.less'
 const Field = ({ field, formProps, page }) => {
   const { id, label, typeid, desc, widgets } = field
   const widget = (widgets || [])[0] || {}
-  const { options } = widget
+  const { options, required } = widget
   const hasImages = options && options.some(({ image }) => image)
 
   return (
@@ -19,10 +19,13 @@ const Field = ({ field, formProps, page }) => {
       <Col span='24'>
         <fieldset>
           <legend htmlFor={id}>
-            <div>
-              <span className='page-number'>{page + 1}.</span>
-              {label}
-            </div>
+            <Row type='flex' justify='flex-start'>
+              <Col className='page-number'>{page + 1}.</Col>
+              <Col style={{ flex: 1 }}>
+                {label}
+                {required && '*'}
+              </Col>
+            </Row>
           </legend>
           <div className='form-group'>
             {desc && <p> {desc} </p>}

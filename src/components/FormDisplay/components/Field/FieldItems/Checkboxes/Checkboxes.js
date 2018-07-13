@@ -30,7 +30,7 @@ class Checkboxes extends React.PureComponent {
 
     return (
       <span>
-        <p style={{ paddingBottom: 10, color: '#777' }}>
+        <p style={{ paddingBottom: 6, color: '#777' }}>
           |&emsp;Select all that apply
         </p>
         <FormField

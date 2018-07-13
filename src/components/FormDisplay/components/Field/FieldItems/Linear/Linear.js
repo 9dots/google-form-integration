@@ -10,14 +10,14 @@ const Linear = ({ widgets, formProps }) => {
   const value = getProp(`values.${id}`, formProps)
 
   return (
-    <span className='linear-group-wrap'>
-      <FormField
-        {...formProps}
-        className='linear-group'
-        component={RadioField}
-        required={required}
-        name={id}
-        key={id}>
+    <FormField
+      {...formProps}
+      className='linear-group-wrap'
+      component={RadioField}
+      required={required}
+      name={id}
+      key={id}>
+      <div className='linear-group'>
         {options.map((c, i) => (
           <label
             className={`form-linear ${radioClass(value, c.label)}`}
@@ -26,12 +26,12 @@ const Linear = ({ widgets, formProps }) => {
             {c.label}
           </label>
         ))}
-      </FormField>
+      </div>
       <Row type='flex' justify='space-between' className='legend'>
         <Col>{legend.first}</Col>
         <Col>{legend.last}</Col>
       </Row>
-    </span>
+    </FormField>
   )
 }
 

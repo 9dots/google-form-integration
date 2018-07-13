@@ -1,4 +1,5 @@
-@import "./theme/mixins";
+@import (reference) "~antd/dist/antd.less";
+@import (reference) "./theme/mixins";
 
 .hide {
   display: none !important;
@@ -12,7 +13,12 @@ textarea {
   resize: none !important;
 }
 
-.has-error .ant-form-explain {
+.ant-form-item.ant-form-item-with-help {
+  margin-bottom: 24px;
+}
+
+.ant-form-item .ant-form-explain {
+  position: absolute;
   line-height: 2.5;
-  font-size: 16px;
+  font-size: 17px;
 }

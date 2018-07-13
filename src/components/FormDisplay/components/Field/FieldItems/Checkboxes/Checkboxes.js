@@ -59,13 +59,14 @@ class Checkboxes extends React.PureComponent {
                   </div>
                 )}
                 <div className='flex-row'>
-                  <CheckBoxDisplay label={c.label || 'Other'} />
-                  {c.custom &&
-                    !hasImages && (
-                    <span>
-                        :<OtherInput otherRef={ref} {...this.props} />
-                    </span>
-                  )}
+                  <CheckBoxDisplay label={c.label || 'Other'}>
+                    {c.custom &&
+                      !hasImages && (
+                      <span>
+                          :<OtherInput otherRef={ref} {...this.props} />
+                      </span>
+                    )}
+                  </CheckBoxDisplay>
                 </div>
               </label>
             )
@@ -76,12 +77,13 @@ class Checkboxes extends React.PureComponent {
   }
 }
 
-const CheckBoxDisplay = ({ label }) => (
+const CheckBoxDisplay = ({ label, children }) => (
   <Row align='middle' type='flex' className='checkbox-display'>
     <Col className='checkbox'>
       <Icon type='check' />
     </Col>
     <Col>{label}</Col>
+    {children && <Col>{children}</Col>}
   </Row>
 )
 

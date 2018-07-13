@@ -3,6 +3,7 @@ import { withFormik } from 'formik'
 import setProp from '@f/set-prop'
 import { f } from '../../utils'
 import filter from '@f/filter'
+import { message, Modal } from 'antd'
 import 'firebase/firestore'
 import {
   compose,
@@ -31,18 +32,14 @@ export default compose(
       .reduce((acc, f) => acc.concat(f.widgets), [])
       .filter(w => !!w)
   })),
-  withStateHandlers(
-    props => ({ submitted: props.submitted, page: 0, sending: false }),
-    {
-      setSubmitted: () => () => ({ submitted: true }),
-      setSending: () => isSending => ({ isSending }),
-      next: ({ page }, { data }) => () => ({
-        page: Math.min(page + 1, data.fields.length - 1)
-      }),
-      back: ({ page }) => () => ({ page: Math.max(0, page - 1) }),
-      goTo: ({ page }) => newPage => ({ page: newPage })
-    }
-  ),
+  withStateHandlers(props => ({ submitted: props.submitted, page: 0 }), {
+    setSubmitted: () => () => ({ submitted: true }),
+    next: ({ page }, { data }) => () => ({
+      page: Math.min(page + 1, data.fields.length - 1)
+    }),
+    back: ({ page }) => () => ({ page: Math.max(0, page - 1) }),
+    goTo: () => newPage => ({ page: newPage })
+  }),
 
   withFormik({
     displayName: 'displayForm',
@@ -80,20 +77,7 @@ export default compose(
         })
       ).catch(console.error)
     },
-    validate: (values, props) => {
-      const errors = props.widgets.reduce((acc, w) => {
-        if (
-          w.required && Array.isArray(values[w.id])
-            ? !values[w.id].length
-            : !values[w.id]
-        ) {
-          return setProp(w.id, acc, 'Required')
-        }
-        return acc
-      }, {})
-
-      return errors
-    },
+    validate: validate,
     mapPropsToValues: props =>
       initValues(props.data, props.widgets, props.response)
   }),
@@ -120,30 +104,44 @@ export default compose(
       }
     },
     submit: props => () => {
-      props.submitForm()
-      props.setSending(true)
+      const {
+        data: { fields },
+        values
+      } = props
+      const errors = validate(values, props)
+
+      if (Object.keys(errors).length) {
+        const index = fields.findIndex(({ widgets }) =>
+          widgets.some(({ id }) => errors[id])
+        )
+        Modal.confirm({
+          title: 'Your form is incomplete!',
+          content:
+            'Go back to your first unanswered question and complete the form.',
+          okText: 'Ok',
+          cancelText: 'Cancel',
+          onOk: () => {
+            props.submitForm()
+            props.goTo(index)
+          }
+        })
+      } else {
+        Modal.confirm({
+          title: 'Submit',
+          content: "You won't be able to change your replies afterwards.",
+          okText: 'Submit',
+          cancelText: 'Cancel',
+          onOk: () => {
+            props.submitForm()
+          }
+        })
+      }
     }
   }),
   lifecycle({
     componentWillUpdate (nextProps) {
       if (nextProps.values !== this.props.values) {
         this.props.updateProgress(nextProps.values)
-      }
-
-      if (nextProps.isSending && this.props.isSending) {
-        const {
-          data: { fields },
-          errors
-        } = nextProps
-
-        this.props.setSending(false)
-
-        if (Object.keys(errors).length) {
-          const index = fields.findIndex(({ widgets }) =>
-            widgets.some(({ id }) => errors[id])
-          )
-          this.props.goTo(index)
-        }
       }
     }
   })
@@ -197,6 +195,18 @@ function cast (values) {
     }
     return acc.concat(toObjWithValues(id, val))
   }, [])
+}
+
+function validate (values, props) {
+  return props.widgets.reduce((acc, w) => {
+    if (
+      w.required &&
+      (Array.isArray(values[w.id]) ? !values[w.id].length : !values[w.id])
+    ) {
+      return setProp(w.id, acc, 'Required')
+    }
+    return acc
+  }, {})
 }
 
 function toObj (values) {

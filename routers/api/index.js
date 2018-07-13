@@ -29,17 +29,14 @@ module.exports = function (app) {
   route.post('/externalUpdate', async (req, res) => {
     const update = await getInstance(req.body.id, 'update')
     try {
-      const response = await fetch(
-        `${update.host}/api/activity.externalUpdate`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Apikey ' + process.env.API_KEY
-          },
-          body: JSON.stringify(req.body)
-        }
-      )
+      const response = await fetch(update.host, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Apikey ' + process.env.API_KEY
+        },
+        body: JSON.stringify(req.body)
+      })
       const body = await response.json()
       return res.send(body)
     } catch (e) {

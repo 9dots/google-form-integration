@@ -98,6 +98,7 @@ export default compose(
       ).catch(console.error)
     },
     validate: (values, props) => {
+      console.log(props.isSubmitting)
       const errors = props.widgets.reduce((acc, w) => {
         if (w.required && !values[w.id]) {
           return setProp(w.id, acc, 'Required')

@@ -3,7 +3,7 @@ import React from 'react'
 import './Completed.less'
 import { Icon } from 'antd'
 
-const Completed = props => {
+const Completed = () => {
   return (
     <div className='completed'>
       <Icon type='check-circle-o' className='complete-icon' />

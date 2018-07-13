@@ -31,36 +31,19 @@ export default compose(
       .reduce((acc, f) => acc.concat(f.widgets), [])
       .filter(w => !!w)
   })),
-  withStateHandlers(props => ({ submitted: props.submitted, page: 0 }), {
-    setSubmitted: () => () => ({ submitted: true }),
-    next: ({ page }, { data }) => () => ({
-      page: Math.min(page + 1, data.fields.length - 1)
-    }),
-    back: ({ page }) => () => ({ page: Math.max(0, page - 1) })
-  }),
-  withHandlers({
-    updateProgress: props => values => {
-      f(
-        `${process.env.REACT_APP_API_HOST}/api/externalUpdate`,
-        JSON.stringify({
-          progress: getProgress(values, props.widgets),
-          completed: false,
-          id: props.activityId
-        })
-      ).catch(console.error)
-      responsesCol
-        .doc(props.activityId)
-        .set(
-          { data: filter(val => val !== undefined, values) },
-          { merge: true }
-        )
-    },
-    onKeyPress: () => e => {
-      if (e.target.type !== 'textarea' && e.which === 13 /* Enter */) {
-        e.preventDefault()
-      }
+  withStateHandlers(
+    props => ({ submitted: props.submitted, page: 0, sending: false }),
+    {
+      setSubmitted: () => () => ({ submitted: true }),
+      setSending: () => isSending => ({ isSending }),
+      next: ({ page }, { data }) => () => ({
+        page: Math.min(page + 1, data.fields.length - 1)
+      }),
+      back: ({ page }) => () => ({ page: Math.max(0, page - 1) }),
+      goTo: ({ page }) => newPage => ({ page: newPage })
     }
-  }),
+  ),
+
   withFormik({
     displayName: 'displayForm',
     handleSubmit: (values, { props }) => {
@@ -100,20 +83,68 @@ export default compose(
     validate: (values, props) => {
       console.log(props.isSubmitting)
       const errors = props.widgets.reduce((acc, w) => {
-        if (w.required && !values[w.id]) {
+        if (
+          w.required && Array.isArray(values[w.id])
+            ? !values[w.id].length
+            : !values[w.id]
+        ) {
           return setProp(w.id, acc, 'Required')
         }
         return acc
       }, {})
+
       return errors
     },
     mapPropsToValues: props =>
       initValues(props.data, props.widgets, props.response)
   }),
+  withHandlers({
+    updateProgress: props => values => {
+      f(
+        `${process.env.REACT_APP_API_HOST}/api/externalUpdate`,
+        JSON.stringify({
+          progress: getProgress(values, props.widgets),
+          completed: false,
+          id: props.activityId
+        })
+      ).catch(console.error)
+      responsesCol
+        .doc(props.activityId)
+        .set(
+          { data: filter(val => val !== undefined, values) },
+          { merge: true }
+        )
+    },
+    onKeyPress: () => e => {
+      if (e.target.type !== 'textarea' && e.which === 13 /* Enter */) {
+        e.preventDefault()
+      }
+    },
+    submit: props => () => {
+      props.submitForm()
+      props.setSending(true)
+    }
+  }),
   lifecycle({
     componentWillUpdate (nextProps) {
       if (nextProps.values !== this.props.values) {
         this.props.updateProgress(nextProps.values)
+      }
+
+      if (nextProps.isSending && this.props.isSending) {
+        const {
+          data: { fields },
+          errors
+        } = nextProps
+
+        this.props.setSending(false)
+
+        if (Object.keys(errors).length) {
+          const index = fields.findIndex(({ widgets }) =>
+            widgets.some(({ id }) => errors[id])
+          )
+          this.props.goTo(index)
+        }
       }
     }
   })
@@ -142,12 +173,12 @@ function initValues (data = {}, widgets, response = {}) {
   }
 }
 
-function checkEmail (data = {}, values) {
-  if (data.askEmail && !values.emailAddress) {
-    return { emailAddress: 'Required' }
-  }
-  return {}
-}
+// function checkEmail (data = {}, values) {
+//   if (data.askEmail && !values.emailAddress) {
+//     return { emailAddress: 'Required' }
+//   }
+//   return {}
+// }
 
 function cast (values) {
   const toObjWithValues = toObj(values)

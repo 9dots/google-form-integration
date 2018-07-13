@@ -9,8 +9,9 @@ const FormControl = props => {
     back,
     page,
     data: { fields },
-    handleSubmit,
     submitted,
+    handleSubmit,
+    submit,
     isFirst,
     isLast
   } = props
@@ -38,7 +39,7 @@ const FormControl = props => {
               <Button
                 className='form-control-btn'
                 type='primary'
-                onClick={isLast ? handleSubmit : next}>
+                onClick={isLast ? submit : next}>
                 {isLast ? 'Submit' : 'Next'}
                 <Icon type='right' />
               </Button>

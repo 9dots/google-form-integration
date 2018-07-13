@@ -7,6 +7,7 @@ import admin from 'firebase-admin'
 import express from 'express'
 import React from 'react'
 import path from 'path'
+import cors from 'cors'
 
 const cert = getServiceAccount()
 
@@ -23,6 +24,7 @@ const api = require('../routers/api/index')
 const app = express()
 app.use(express.static(path.resolve(__dirname, '../build')))
 app.use(bodyParser.json())
+app.use(cors())
 
 app.get('/teacher/:id', async (req, res) => {
   const { id } = req.params

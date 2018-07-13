@@ -11,7 +11,7 @@ import Completed from '../Completed/Completed'
 
 const FormDisplay = props => {
   const { data, page, onKeyPress } = props
-  const { fields = [], title, desc, askEmail, emailAddress } = data
+  const { fields = [], title, desc } = data
   const formProps = pick(fieldFormProps, props)
   const field = fields[page]
   const isLast = page === fields.length - 1
@@ -29,11 +29,6 @@ const FormDisplay = props => {
             onKeyPress={onKeyPress}
             autoComplete='off'>
             <input type='hidden' autoComplete='false' />
-            {/* {askEmail && (
-              <Components.Email
-                formProps={formProps}
-                emailAddress={emailAddress} />
-            )} */}
             <Components.Field
               formProps={formProps}
               key={field.id}

@@ -157,7 +157,7 @@ function extractImages (doc) {
             }
           }
         })
-        return { ...field, widgets: [widget] }
+        return { ...field, widgets: widget ? [widget] : [] }
       }
     })
     return { ...form, fields }

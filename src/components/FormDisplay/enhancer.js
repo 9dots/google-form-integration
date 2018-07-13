@@ -118,11 +118,11 @@ export default compose(
         const index = fields.findIndex(({ widgets = [] }) =>
           widgets.filter(val => !!val).some(({ id }) => errors[id])
         )
-        Modal.confirm({
+        Modal.error({
           title: 'Your form is incomplete!',
           content:
             'Go back to your first unanswered question and complete the form.',
-          okText: 'Ok',
+          okText: 'OK',
           cancelText: 'Cancel',
           onOk: () => {
             props.submitForm()

@@ -27,6 +27,7 @@ module.exports = function (app) {
 
   route.post('/externalUpdate', async (req, res) => {
     try {
+      console.log(process.env.RESPONSE_URL)
       const response = await fetch(
         `${process.env.RESPONSE_URL}/api/activity.externalUpdate`,
         {

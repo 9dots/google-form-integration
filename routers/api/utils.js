@@ -36,7 +36,7 @@ async function addPermission (id, access_token) {
   return Promise.all([
     permissionPromise,
     setReaderCanCopy(id, access_token)
-  ]).catch(() => 'insufficient_permissions')
+  ]).catch(() => Promise.reject('insufficient_permissions'))
 }
 
 function setReaderCanCopy (id, access_token) {

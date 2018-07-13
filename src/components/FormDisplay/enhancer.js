@@ -69,7 +69,9 @@ export default compose(
       )
         .then(res => console.log('done'))
         .catch(e => console.log('done', e))
-      responsesCol.doc(props.activityId).update({ submitted: true })
+      responsesCol
+        .doc(props.activityId)
+        .set({ submitted: true }, { merge: true })
       props.setSubmitted()
       f(
         `${process.env.REACT_APP_API_HOST}/api/externalUpdate`,

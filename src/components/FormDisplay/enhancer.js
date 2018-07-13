@@ -71,7 +71,10 @@ export default compose(
         .catch(e => console.log('done', e))
       responsesCol
         .doc(props.activityId)
-        .set({ submitted: true }, { merge: true })
+        .set(
+          { submitted: true, data: filter(val => val !== undefined, values) },
+          { merge: true }
+        )
       props.setSubmitted()
       f(
         `${process.env.REACT_APP_API_HOST}/api/externalUpdate`,
@@ -158,7 +161,7 @@ function getProgress (values, widgets) {
     }
     return acc + 1
   }, 0)
-  return Math.round((completed / widgets.length) * 100)
+  return Math.round((completed / (widgets.length + 1)) * 100)
 }
 
 function initValues (data = {}, widgets, response = {}) {

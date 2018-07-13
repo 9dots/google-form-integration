@@ -6,12 +6,12 @@ module.exports = html => `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="shortcut icon" href="/favicon.ico">
   <title>React App</title>
-  <link href="/static/css/main.9e7cab8d.css" rel="stylesheet">
+  <link href="/static/css/main.3aefb990.css" rel="stylesheet">
 </head>
 
 <body>
   <div id="root">${html}</div>
-  <script type="text/javascript" src="/static/js/main.1f5e2906.js"></script>
+  <script type="text/javascript" src="/static/js/main.4a71c0ec.js"></script>
 </body>
 
 </html>`

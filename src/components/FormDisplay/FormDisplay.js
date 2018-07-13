@@ -29,11 +29,11 @@ const FormDisplay = props => {
             onKeyPress={onKeyPress}
             autoComplete='off'>
             <input type='hidden' autoComplete='false' />
-            {askEmail && (
+            {/* {askEmail && (
               <Components.Email
                 formProps={formProps}
                 emailAddress={emailAddress} />
-            )}
+            )} */}
             <Components.Field
               formProps={formProps}
               key={field.id}

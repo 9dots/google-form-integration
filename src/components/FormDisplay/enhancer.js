@@ -104,7 +104,7 @@ export default compose(
         }
         return acc
       }, {})
-      return { ...errors, ...checkEmail(props.data, values) }
+      return errors
     },
     mapPropsToValues: props =>
       initValues(props.data, props.widgets, props.response)

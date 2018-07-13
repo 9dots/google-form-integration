@@ -11,7 +11,7 @@ module.exports = html => `<!doctype html>
 
 <body>
   <div id="root">${html}</div>
-  <script type="text/javascript" src="/static/js/main.0f41e918.js"></script>
+  <script type="text/javascript" src="/static/js/main.d39e5fe3.js"></script>
 </body>
 
 </html>`

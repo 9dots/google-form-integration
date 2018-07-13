@@ -40,7 +40,7 @@ export default compose(
         page: Math.min(page + 1, data.fields.length - 1)
       }),
       back: ({ page }) => () => ({ page: Math.max(0, page - 1) }),
-      goTo: ({ page }) => newPage => ({ page: newPage })
+      goTo: () => newPage => ({ page: newPage })
     }
   ),
 
@@ -81,7 +81,6 @@ export default compose(
       ).catch(console.error)
     },
     validate: (values, props) => {
-      console.log(props.isSubmitting)
       const errors = props.widgets.reduce((acc, w) => {
         if (
           w.required && Array.isArray(values[w.id])
@@ -127,7 +126,7 @@ export default compose(
   }),
   lifecycle({
     componentWillUpdate (nextProps) {
-      if (nextProps.values !== this.props.values) {
+      if (nextProps.page !== this.props.page) {
         this.props.updateProgress(nextProps.values)
       }
 

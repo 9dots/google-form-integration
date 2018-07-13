@@ -8,6 +8,7 @@ const {
   addPermission,
   getNewForms,
   mergeCopies,
+  getInstance,
   getTitle
 } = require('./utils')
 
@@ -26,10 +27,10 @@ module.exports = function (app) {
   })
 
   route.post('/externalUpdate', async (req, res) => {
+    const update = await getInstance(req.body.id, 'update')
     try {
-      console.log(process.env.RESPONSE_URL)
       const response = await fetch(
-        `${process.env.RESPONSE_URL}/api/activity.externalUpdate`,
+        `${update.host}/api/activity.externalUpdate`,
         {
           method: 'POST',
           headers: {
@@ -42,7 +43,6 @@ module.exports = function (app) {
       const body = await response.json()
       return res.send(body)
     } catch (e) {
-      console.error(e)
       return res.send({ ok: false, error: e })
     }
   })
@@ -54,7 +54,6 @@ module.exports = function (app) {
       .then(createInstances)
       .then(instances => res.json({ ok: true, instances }))
       .catch(e => {
-        console.error(e)
         return res.json({ ok: false, error: e })
       })
   })

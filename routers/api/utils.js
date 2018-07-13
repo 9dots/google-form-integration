@@ -8,6 +8,7 @@ const url = require('url')
 const formsUrl = process.env.FORMS_APP_SCRIPT
 const tasksRef = admin.firestore().collection('tasks')
 const pathRe = toRegexp('/forms/d/:id/edit')
+const responsesRef = admin.firestore().collection('responses')
 
 module.exports = {
   fetchFormCopies,
@@ -15,6 +16,7 @@ module.exports = {
   parseIdFromTask,
   addPermission,
   getNewForms,
+  getInstance,
   mergeCopies,
   getTitle
 }
@@ -65,7 +67,24 @@ async function getTitle (taskUrl) {
   }
 }
 
+async function getInstance (id, field) {
+  return responsesRef
+    .doc(id)
+    .get()
+    .then(snap => (field ? snap.get(field) : snap.data()))
+}
+
 async function createInstances (tasks) {
+  const batch = admin.firestore().batch()
+  const writes = tasks.reduce(
+    (acc, task) =>
+      acc.set(responsesRef.doc(task.update.id), {
+        update: task.update,
+        task: task.task
+      }),
+    batch
+  )
+  writes.commit()
   return tasks.map(task => ({
     instance: url.resolve(
       process.env.REACT_APP_API_HOST,

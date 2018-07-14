@@ -37,38 +37,38 @@ describe('API', function () {
     request = supertest(app)
   })
 
-  // it('Should post /unfurl', done => {
-  //   request
-  //     .post('/api/unfurl')
-  //     .send({
-  //       taskUrl:
-  //         'https://docs.google.com/forms/d/e/1FAIpQLScvJciJAJ1XfH6f8VZ9l69CTp0GBV1JLTWKfrkRJrLmYzJdaQ/viewform?usp=sf_link'
-  //     })
-  //     .set('Accept', 'application/json')
-  //     .expect(200)
-  //     .then(res => assert.equal(res.body.ok, true, 'not ok'))
-  //     .then(done)
-  //     .catch(done)
-  // })
-
-  it('Should post /copy', done => {
-    const tasks = [
-      {
-        task: 'aiviase-asefkase-asefasefas-asefasssasefs',
-        taskUrl:
-          'https://docs.google.com/forms/d/1twz5za_Hqsa1gUTRcfP1y_gQDIRrIQ7ua7lyajPt150/edit',
-        update: {
-          host: 'tacos',
-          id: 'abc123'
-        }
-      }
-    ]
+  it('Should post /unfurl', done => {
     request
-      .post('/api/copy')
-      .send({ tasks })
+      .post('/api/unfurl')
+      .send({
+        taskUrl:
+          'https://docs.google.com/forms/d/e/1FAIpQLScvJciJAJ1XfH6f8VZ9l69CTp0GBV1JLTWKfrkRJrLmYzJdaQ/viewform?usp=sf_link'
+      })
       .set('Accept', 'application/json')
+      .expect(200)
       .then(res => assert.equal(res.body.ok, true, 'not ok'))
       .then(done)
       .catch(done)
   })
+
+  // it('Should post /copy', done => {
+  //   const tasks = [
+  //     {
+  //       task: 'aiviase-asefkase-asefasefas-asefasssasefs',
+  //       taskUrl:
+  //         'https://docs.google.com/forms/d/1twz5za_Hqsa1gUTRcfP1y_gQDIRrIQ7ua7lyajPt150/edit',
+  //       update: {
+  //         host: 'tacos',
+  //         id: 'abc123'
+  //       }
+  //     }
+  //   ]
+  //   request
+  //     .post('/api/copy')
+  //     .send({ tasks })
+  //     .set('Accept', 'application/json')
+  //     .then(res => assert.equal(res.body.ok, true, 'not ok'))
+  //     .then(done)
+  //     .catch(done)
+  // })
 })

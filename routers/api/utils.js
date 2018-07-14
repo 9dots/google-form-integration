@@ -32,7 +32,7 @@ async function addPermission (id, access_token) {
         type: 'anyone'
       })
     }
-  )
+  ).then(res => (res.status > 200 ? Promise.reject() : Promise.resolve()))
   return Promise.all([
     permissionPromise,
     setReaderCanCopy(id, access_token)

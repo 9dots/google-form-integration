@@ -34,11 +34,13 @@ async function addPermission (id, access_token) {
     }
   )
     .then(res => res.json())
-    .then(res => (res.error ? Promise.reject() : Promise.resolve()))
+    .then(res => (res.error ? Promise.reject(res.error) : Promise.resolve()))
   return Promise.all([
     permissionPromise,
     setReaderCanCopy(id, access_token)
-  ]).catch(() => Promise.reject('insufficient_permissions'))
+  ]).catch(e => {
+    return Promise.reject('insufficient_permissions')
+  })
 }
 
 function setReaderCanCopy (id, access_token) {
@@ -121,7 +123,10 @@ async function fetchFormCopies (newForms, token) {
   function publishedToJson (url) {
     return fetch(url)
       .then(res => res.text())
-      .then(htmlToJson)
+      .then(html => {
+        // fs.writeFile('./test.html', html)
+        return htmlToJson(html)
+      })
   }
 
   async function maybeFetch (task, snap, token) {
@@ -129,7 +134,6 @@ async function fetchFormCopies (newForms, token) {
       return Promise.resolve({ form: snap.get('form') })
     }
     const { ok, error, form, published, summary } = await makeCopy(task, token)
-    console.log(ok, error)
     const json = await publishedToJson(published)
     tasksRef.doc(task.task).set({ form, json, summary })
     return { form }

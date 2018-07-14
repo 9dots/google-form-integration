@@ -49,8 +49,12 @@ module.exports = function (app) {
     return fetchFormCopies(getNewForms(tasks), access_token)
       .then(mergeCopies(tasks))
       .then(createInstances)
-      .then(instances => res.json({ ok: true, instances }))
+      .then(instances => {
+        console.log(instances, access_token)
+        return res.json({ ok: true, instances })
+      })
       .catch(e => {
+        console.error(e)
         return res.json({ ok: false, error: e })
       })
   })

@@ -118,7 +118,7 @@ function formatMultipleChoice (data, f) {
   const options = opts.map(o => ({
     label: o[0],
     src: '',
-    href: o[2],
+    href: o[2] || null,
     custom: !!o[4],
     image: o.length > 5
   }))
@@ -157,7 +157,7 @@ function extractImages (doc) {
             }
           }
         })
-        return { ...field, widgets: [widget] }
+        return { ...field, widgets: widget ? [widget] : [] }
       }
     })
     return { ...form, fields }

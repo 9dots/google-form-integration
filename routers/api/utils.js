@@ -8,6 +8,7 @@ const url = require('url')
 const formsUrl = process.env.FORMS_APP_SCRIPT
 const tasksRef = admin.firestore().collection('tasks')
 const pathRe = toRegexp('/forms/d/:id/edit')
+const responsesRef = admin.firestore().collection('responses')
 
 module.exports = {
   fetchFormCopies,
@@ -15,6 +16,7 @@ module.exports = {
   parseIdFromTask,
   addPermission,
   getNewForms,
+  getInstance,
   mergeCopies,
   getTitle
 }
@@ -26,15 +28,19 @@ async function addPermission (id, access_token) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        role: 'reader',
+        role: 'writer',
         type: 'anyone'
       })
     }
   )
+    .then(res => res.json())
+    .then(res => (res.error ? Promise.reject(res.error) : Promise.resolve()))
   return Promise.all([
     permissionPromise,
     setReaderCanCopy(id, access_token)
-  ]).catch(() => 'insufficient_permissions')
+  ]).catch(e => {
+    return Promise.reject('insufficient_permissions')
+  })
 }
 
 function setReaderCanCopy (id, access_token) {
@@ -48,7 +54,7 @@ function setReaderCanCopy (id, access_token) {
         copyRequiresWriterPermission: false
       })
     }
-  ).catch(() => 'insufficient_permissions')
+  ).catch(() => Promise.reject('insufficient_permissions'))
 }
 
 async function getTitle (taskUrl) {
@@ -65,7 +71,24 @@ async function getTitle (taskUrl) {
   }
 }
 
+async function getInstance (id, field) {
+  return responsesRef
+    .doc(id)
+    .get()
+    .then(snap => (field ? snap.get(field) : snap.data()))
+}
+
 async function createInstances (tasks) {
+  const batch = admin.firestore().batch()
+  const writes = tasks.reduce(
+    (acc, task) =>
+      acc.set(responsesRef.doc(task.update.id), {
+        update: task.update,
+        task: task.task
+      }),
+    batch
+  )
+  writes.commit()
   return tasks.map(task => ({
     instance: url.resolve(
       process.env.REACT_APP_API_HOST,
@@ -100,7 +123,9 @@ async function fetchFormCopies (newForms, token) {
   function publishedToJson (url) {
     return fetch(url)
       .then(res => res.text())
-      .then(htmlToJson)
+      .then(html => {
+        return htmlToJson(html)
+      })
   }
 
   async function maybeFetch (task, snap, token) {
@@ -108,7 +133,7 @@ async function fetchFormCopies (newForms, token) {
       return Promise.resolve({ form: snap.get('form') })
     }
     const { ok, error, form, published, summary } = await makeCopy(task, token)
-    console.log(ok, error)
+    if (!ok) return Promise.reject(error)
     const json = await publishedToJson(published)
     tasksRef.doc(task.task).set({ form, json, summary })
     return { form }
@@ -116,7 +141,7 @@ async function fetchFormCopies (newForms, token) {
 }
 
 async function makeCopy (task, token) {
-  const id = parseIdFromTask(task.taskUrl)
+  const id = await parseIdFromTask(task.taskUrl)
   const res = await fetch(
     `https://www.googleapis.com/drive/v3/files/${id}/copy?supportsTeamDrives=true`,
     {
@@ -139,10 +164,14 @@ async function makeCopy (task, token) {
   }).then(res => res.json())
 }
 
-function parseIdFromTask (taskUrl) {
-  const path = url.parse(taskUrl).pathname
-  const [, id] = pathRe.exec(path)
-  return id
+async function parseIdFromTask (taskUrl) {
+  try {
+    const path = url.parse(taskUrl).pathname
+    const [, id] = pathRe.exec(path)
+    return id
+  } catch (e) {
+    throw 'invalid_form'
+  }
 }
 
 function getNewForms (tasks) {

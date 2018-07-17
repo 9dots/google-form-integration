@@ -1,6 +1,5 @@
 const bodyParser = require('body-parser')
 const fetch = require('isomorphic-fetch')
-const admin = require('firebase-admin')
 const express = require('express')
 const {
   fetchFormCopies,
@@ -9,10 +8,9 @@ const {
   addPermission,
   getNewForms,
   mergeCopies,
+  getInstance,
   getTitle
 } = require('./utils')
-
-const responsesCol = admin.firestore().collection('responses')
 
 module.exports = function (app) {
   const route = express.Router()
@@ -21,32 +19,24 @@ module.exports = function (app) {
 
   route.post('/unfurl', async (req, res) => {
     const { access_token, taskUrl } = req.body
-    const id = parseIdFromTask(taskUrl)
-    return addPermission(id, access_token)
+    return parseIdFromTask(taskUrl)
+      .then(id => addPermission(id, access_token))
       .then(() => getTitle(taskUrl))
       .then(tasks => res.json({ ok: true, tasks: [tasks] }))
       .catch(e => res.json({ ok: false, error: e }))
   })
 
   route.post('/externalUpdate', async (req, res) => {
+    const update = await getInstance(req.body.id, 'update')
     try {
-      responsesCol
-        .doc(props.activityId)
-        .set(
-          { data: filter(val => val !== undefined, values) },
-          { merge: true }
-        )
-      const response = await fetch(
-        `${process.env.RESPONSE_URL}/api/activity.externalUpdate`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Apikey ' + process.env.API_KEY
-          },
-          body: JSON.stringify(req.body)
-        }
-      )
+      const response = await fetch(update.host, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Apikey ' + process.env.API_KEY
+        },
+        body: JSON.stringify(req.body)
+      })
       const body = await response.json()
       return res.send(body)
     } catch (e) {
@@ -59,7 +49,9 @@ module.exports = function (app) {
     return fetchFormCopies(getNewForms(tasks), access_token)
       .then(mergeCopies(tasks))
       .then(createInstances)
-      .then(instances => res.json({ ok: true, instances }))
+      .then(instances => {
+        return res.json({ ok: true, instances })
+      })
       .catch(e => {
         console.error(e)
         return res.json({ ok: false, error: e })

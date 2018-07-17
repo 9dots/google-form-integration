@@ -54,7 +54,7 @@ function setReaderCanCopy (id, access_token) {
         copyRequiresWriterPermission: false
       })
     }
-  ).catch(() => 'insufficient_permissions')
+  ).catch(() => Promise.reject('insufficient_permissions'))
 }
 
 async function getTitle (taskUrl) {
@@ -124,7 +124,6 @@ async function fetchFormCopies (newForms, token) {
     return fetch(url)
       .then(res => res.text())
       .then(html => {
-        // fs.writeFile('./test.html', html)
         return htmlToJson(html)
       })
   }
@@ -134,6 +133,7 @@ async function fetchFormCopies (newForms, token) {
       return Promise.resolve({ form: snap.get('form') })
     }
     const { ok, error, form, published, summary } = await makeCopy(task, token)
+    if (!ok) return Promise.reject(error)
     const json = await publishedToJson(published)
     tasksRef.doc(task.task).set({ form, json, summary })
     return { form }
@@ -141,7 +141,7 @@ async function fetchFormCopies (newForms, token) {
 }
 
 async function makeCopy (task, token) {
-  const id = parseIdFromTask(task.taskUrl)
+  const id = await parseIdFromTask(task.taskUrl)
   const res = await fetch(
     `https://www.googleapis.com/drive/v3/files/${id}/copy?supportsTeamDrives=true`,
     {
@@ -164,10 +164,14 @@ async function makeCopy (task, token) {
   }).then(res => res.json())
 }
 
-function parseIdFromTask (taskUrl) {
-  const path = url.parse(taskUrl).pathname
-  const [, id] = pathRe.exec(path)
-  return id
+async function parseIdFromTask (taskUrl) {
+  try {
+    const path = url.parse(taskUrl).pathname
+    const [, id] = pathRe.exec(path)
+    return id
+  } catch (e) {
+    throw 'invalid_form'
+  }
 }
 
 function getNewForms (tasks) {

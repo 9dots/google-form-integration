@@ -19,8 +19,8 @@ module.exports = function (app) {
 
   route.post('/unfurl', async (req, res) => {
     const { access_token, taskUrl } = req.body
-    const id = parseIdFromTask(taskUrl)
-    return addPermission(id, access_token)
+    return parseIdFromTask(taskUrl)
+      .then(id => addPermission(id, access_token))
       .then(() => getTitle(taskUrl))
       .then(tasks => res.json({ ok: true, tasks: [tasks] }))
       .catch(e => res.json({ ok: false, error: e }))
@@ -50,7 +50,6 @@ module.exports = function (app) {
       .then(mergeCopies(tasks))
       .then(createInstances)
       .then(instances => {
-        console.log(instances, access_token)
         return res.json({ ok: true, instances })
       })
       .catch(e => {

@@ -11,11 +11,6 @@ module.exports = function (html) {
 async function getText (doc) {
   return doc('script')
     .filter((i, s) => {
-      console.log(
-        doc(s)
-          .html()
-          .includes('var FB_PUBLIC_LOAD_DATA_')
-      )
       return doc(s)
         .html()
         .includes('var FB_PUBLIC_LOAD_DATA_')
@@ -123,7 +118,7 @@ function formatMultipleChoice (data, f) {
   const options = opts.map(o => ({
     label: o[0],
     src: '',
-    href: o[2],
+    href: o[2] || null,
     custom: !!o[4],
     image: o.length > 5
   }))

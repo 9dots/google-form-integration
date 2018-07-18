@@ -4,6 +4,7 @@ const htmlToJson = require('../lib/form')
 const admin = require('firebase-admin')
 const cheerio = require('cheerio')
 const url = require('url')
+const drive = require('./google')
 
 const formsUrl = process.env.FORMS_APP_SCRIPT
 const tasksRef = admin.firestore().collection('tasks')
@@ -21,40 +22,26 @@ module.exports = {
   getTitle
 }
 
-async function addPermission (id, access_token) {
-  const permissionPromise = fetch(
-    `https://www.googleapis.com/drive/v3/files/${id}/permissions?supportsTeamDrives=true&access_token=${access_token}`,
+async function addPermission (id, access_token, email) {
+  const authedDrive = drive(access_token)
+  const addPermission = authedDrive.permissions.create(
+    { fileId: id, supportsTeamDrives: true },
     {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        role: 'writer',
-        type: 'anyone'
-      })
+      role: 'reader',
+      type: 'user',
+      emailAddress: email || process.env.APP_EMAIL_ADDRESS
     }
   )
-    .then(res => res.json())
-    .then(res => (res.error ? Promise.reject(res.error) : Promise.resolve()))
-  return Promise.all([
-    permissionPromise,
-    setReaderCanCopy(id, access_token)
-  ]).catch(e => {
+  const setReaderCanCopy = authedDrive.files.update(
+    { fileId: id, supportsTeamDrives: true },
+    {
+      viewersCanCopyContent: true,
+      copyRequiresWriterPermission: false
+    }
+  )
+  return Promise.all([addPermission, setReaderCanCopy]).catch(e => {
     return Promise.reject('insufficient_permissions')
   })
-}
-
-function setReaderCanCopy (id, access_token) {
-  return fetch(
-    `https://www.googleapis.com/drive/v3/files/${id}?supportsTeamDrives=true&access_token=${access_token}`,
-    {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        viewersCanCopyContent: true,
-        copyRequiresWriterPermission: false
-      })
-    }
-  ).catch(() => Promise.reject('insufficient_permissions'))
 }
 
 async function getTitle (taskUrl) {

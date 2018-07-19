@@ -1,3 +1,4 @@
+const getUserEmail = require('../middleware/getUserEmail')
 const bodyParser = require('body-parser')
 const fetch = require('isomorphic-fetch')
 const express = require('express')
@@ -9,21 +10,28 @@ const {
   getNewForms,
   mergeCopies,
   getInstance,
-  getTitle
-} = require('./utils')
+  formatTask,
+  makeCopy
+} = require('../lib/utils')
 
 module.exports = function (app) {
   const route = express.Router()
   route.use(bodyParser.json())
+  route.use(getUserEmail)
   app.use('/api', route)
 
   route.post('/unfurl', async (req, res) => {
     const { access_token, taskUrl } = req.body
     return parseIdFromTask(taskUrl)
-      .then(id => addPermission(id, access_token))
-      .then(() => getTitle(taskUrl))
-      .then(tasks => res.json({ ok: true, tasks: [tasks] }))
-      .catch(e => res.json({ ok: false, error: e }))
+      .then(id =>
+        addPermission(id, access_token).then(() => makeCopy(id, req.userEmail))
+      )
+      .then(formatTask)
+      .then(task => res.json({ ok: true, tasks: [task] }))
+      .catch(e => {
+        console.error(e)
+        return res.json({ ok: false, error: e })
+      })
   })
 
   route.post('/externalUpdate', async (req, res) => {
@@ -46,7 +54,7 @@ module.exports = function (app) {
 
   route.post('/copy', async (req, res) => {
     const { tasks = [], access_token } = req.body
-    return fetchFormCopies(getNewForms(tasks), access_token)
+    return fetchFormCopies(getNewForms(tasks), req.userEmail)
       .then(mergeCopies(tasks))
       .then(createInstances)
       .then(instances => {

@@ -1,10 +1,9 @@
+import drive from './google'
 const toRegexp = require('path-to-regexp')
 const fetch = require('isomorphic-fetch')
-const htmlToJson = require('../lib/form')
 const admin = require('firebase-admin')
-const cheerio = require('cheerio')
+const htmlToJson = require('./form')
 const url = require('url')
-const drive = require('./google')
 
 const formsUrl = process.env.FORMS_APP_SCRIPT
 const tasksRef = admin.firestore().collection('tasks')
@@ -15,46 +14,45 @@ module.exports = {
   fetchFormCopies,
   createInstances,
   parseIdFromTask,
+  makeCopy,
   addPermission,
   getNewForms,
   getInstance,
   mergeCopies,
-  getTitle
+  formatTask
 }
 
 async function addPermission (id, access_token, email) {
   const authedDrive = drive(access_token)
-  const addPermission = authedDrive.permissions.create(
-    { fileId: id, supportsTeamDrives: true },
-    {
+  const addPermission = authedDrive.permissions.create({
+    fileId: id,
+    supportsTeamDrives: true,
+    access_token: access_token,
+    requestBody: {
       role: 'reader',
-      type: 'user',
-      emailAddress: email || process.env.APP_EMAIL_ADDRESS
+      type: 'anyone'
     }
-  )
-  const setReaderCanCopy = authedDrive.files.update(
-    { fileId: id, supportsTeamDrives: true },
-    {
+  })
+  const setReaderCanCopy = authedDrive.files.update({
+    fileId: id,
+    supportsTeamDrives: true,
+    access_token: access_token,
+    requestBody: {
       viewersCanCopyContent: true,
       copyRequiresWriterPermission: false
     }
-  )
+  })
   return Promise.all([addPermission, setReaderCanCopy]).catch(e => {
+    console.error(e)
     return Promise.reject('insufficient_permissions')
   })
 }
 
-async function getTitle (taskUrl) {
-  const form = await fetch(taskUrl, {
-    headers: { Accept: 'text/html' }
-  })
-  const html = await form.text()
-  const $ = cheerio.load(html)
-  const title = $('title').text()
+function formatTask ({ title, form }) {
   return {
     displayName: title,
     type: 'practice',
-    url: taskUrl
+    url: form
   }
 }
 
@@ -97,11 +95,11 @@ function mergeCopies (tasks) {
     )
 }
 
-async function fetchFormCopies (newForms, token) {
+async function fetchFormCopies (newForms, viewer) {
   return Promise.all(
     newForms.map(async task => {
       const snap = await tasksRef.doc(task.task).get()
-      return maybeFetch(task, snap, token).then(res =>
+      return maybeFetch(task, snap, viewer).then(res =>
         Object.assign({}, task, res)
       )
     })
@@ -115,11 +113,12 @@ async function fetchFormCopies (newForms, token) {
       })
   }
 
-  async function maybeFetch (task, snap, token) {
+  async function maybeFetch (task, snap, viewer) {
     if (snap.exists) {
       return Promise.resolve({ form: snap.get('form') })
     }
-    const { ok, error, form, published, summary } = await makeCopy(task, token)
+    const id = await parseIdFromTask(task.taskUrl)
+    const { ok, error, form, published, summary } = await makeCopy(id, viewer)
     if (!ok) return Promise.reject(error)
     const json = await publishedToJson(published)
     tasksRef.doc(task.task).set({ form, json, summary })
@@ -127,29 +126,29 @@ async function fetchFormCopies (newForms, token) {
   }
 }
 
-async function makeCopy (task, token) {
-  const id = await parseIdFromTask(task.taskUrl)
-  const res = await fetch(
-    `https://www.googleapis.com/drive/v3/files/${id}/copy?supportsTeamDrives=true`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + token
-      }
-    }
-  )
-  const body = await res.json()
-  await addPermission(body.id, token)
+async function makeCopy (id, viewer) {
   return fetch(formsUrl, {
     method: 'POST',
     headers: {
-      Authorization: 'Bearer ' + token,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ type: 'copy', formId: body.id })
+    body: JSON.stringify({ type: 'copy', formId: id, viewer })
   }).then(res => res.json())
 }
+
+// async function makeCopy (id, token) {
+//   const res = await fetch(
+//     `https://www.googleapis.com/drive/v3/files/${id}/copy?supportsTeamDrives=true`,
+//     {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         Authorization: 'Bearer ' + token
+//       }
+//     }
+//   )
+//   return res.json()
+// }
 
 async function parseIdFromTask (taskUrl) {
   try {

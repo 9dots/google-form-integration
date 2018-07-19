@@ -1,1 +1,24 @@
 /* FormDisplay less */
+
+@import (reference) "../../theme/mixins";
+@import (reference) "../../theme/vars/vars";
+@import (reference) "../../theme/vars/palette";
+
+.form-layout-content {
+  width: @max-width;
+  .respond-sm({width: unit(@form-width, px) ;});
+  > form {
+    width: 100%;
+    padding: 0 unit(@sidebar-width, px);
+    .respond-sm({padding: 0;}) !important;
+  }
+}
+
+.ant-progress-bg {
+  background-color: darken(@primary-color, 20) !important;
+}
+
+.page-display {
+  padding-top: 7px;
+  text-align: right;
+}

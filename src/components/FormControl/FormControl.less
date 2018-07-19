@@ -1,19 +1,21 @@
 /* FormControl less */
 
+@import (reference) "../../theme/mixins";
+@import (reference) "../../theme/vars/vars";
+
 .form-control-wrap {
-  // padding-bottom: 50px;
   position: fixed;
-  // .form-control {
   bottom: 0;
   left: 0;
   width: 100%;
   padding: 10px;
   border-top: 1px solid fade(black, 10);
   background: #fafafa;
-  // }
+  .respond-lg({display: none;});
 }
+
 .form-control {
-  max-width: 700px;
+  max-width: unit(@form-width, px);
   margin: 0 auto;
 }
 
@@ -26,7 +28,31 @@
   }
 }
 
-.page-display {
-  padding-top: 7px;
-  text-align: right;
+.form-float-btn {
+  @width: 55px;
+  padding: 0 20px;
+  font-size: 20px;
+  border-radius: 99px;
+  height: @width;
+  min-width: @width;
+  padding: 0;
+  .flex-center;
+  position: fixed;
+  top: 0;
+  bottom: 20px;
+  margin: auto;
+  .respond-sm({display: none;});
+  &.back {
+    left: 20px;
+  }
+  &.next {
+    right: 20px;
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.5);
+  }
+  &.last {
+    padding: 0 20px;
+  }
+  &:first-child {
+    margin-right: 10px;
+  }
 }

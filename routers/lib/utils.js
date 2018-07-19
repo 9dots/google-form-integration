@@ -26,6 +26,17 @@ module.exports = {
   makeCopy
 }
 
+function getErrorMessage (err) {
+  const errorMap = {
+    invalid_form: {
+      field: 'url',
+      message:
+        'Google Form url is invalid. Please make sure to use the edit link from the browser.'
+    }
+  }
+  return errorMap[err] || err
+}
+
 async function addTemplate (copy) {
   const id = await parseIdFromTask(copy.form)
   return templatesRef.doc(id).set(copy)

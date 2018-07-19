@@ -6,6 +6,7 @@ const {
   fetchFormCopies,
   parseIdFromTask,
   createInstances,
+  getErrorMessage,
   addPermission,
   getNewForms,
   mergeCopies,
@@ -31,7 +32,7 @@ module.exports = function (app) {
       return res.json({ ok: true, tasks: [task] })
     } catch (e) {
       console.error(e)
-      return res.json({ ok: false, error: e })
+      return res.json({ ok: false, error: getErrorMessage(e) })
     }
   })
 
@@ -45,7 +46,7 @@ module.exports = function (app) {
       })
       .catch(e => {
         console.error(e)
-        return res.json({ ok: false, error: e })
+        return res.json({ ok: false, error: getErrorMessage(e) })
       })
   })
 
@@ -63,7 +64,7 @@ module.exports = function (app) {
       const body = await response.json()
       return res.send(body)
     } catch (e) {
-      return res.send({ ok: false, error: e })
+      return res.send({ ok: false, error: getErrorMessage(e) })
     }
   })
 }

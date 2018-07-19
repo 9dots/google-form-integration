@@ -18,6 +18,7 @@ module.exports = {
   createInstances,
   parseIdFromTask,
   addPermission,
+  getErrorMessage,
   getNewForms,
   getInstance,
   mergeCopies,

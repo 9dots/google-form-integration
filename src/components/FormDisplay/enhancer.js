@@ -55,16 +55,16 @@ export default compose(
         .filter(val => !!val.value)
         .forEach(val => params.append(val.key, val.value))
       params.append('emailAddress', props.activityId + '@9dotsapp.com')
-      f(
-        `https://docs.google.com${props.data.path}/d/${
-          props.data.action
-        }/formResponse`,
-        params,
-        { 'Content-Type': 'application/x-www-form-urlencoded' },
-        { mode: 'no-cors' }
+      props.data.action.map(action =>
+        f(
+          `https://docs.google.com${props.data.path}/d/${action}/formResponse`,
+          params,
+          { 'Content-Type': 'application/x-www-form-urlencoded' },
+          { mode: 'no-cors' }
+        )
+          .then(res => console.log('done'))
+          .catch(e => console.log('done', e))
       )
-        .then(res => console.log('done'))
-        .catch(e => console.log('done', e))
       responsesCol
         .doc(props.activityId)
         .set(
@@ -73,7 +73,7 @@ export default compose(
         )
       props.setSubmitted()
       f(
-        `${process.env.REACT_APP_API_HOST}/api/externalUpdate`,
+        `/api/externalUpdate`,
         JSON.stringify({
           progress: 100,
           completed: true,
@@ -88,7 +88,7 @@ export default compose(
   withHandlers({
     updateProgress: props => values => {
       f(
-        `${process.env.REACT_APP_API_HOST}/api/externalUpdate`,
+        `/api/externalUpdate`,
         JSON.stringify({
           progress: getProgress(values, props.widgets),
           completed: false,

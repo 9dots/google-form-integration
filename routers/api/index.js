@@ -10,6 +10,7 @@ const {
   getNewForms,
   mergeCopies,
   getInstance,
+  addTemplate,
   formatTask,
   makeCopy
 } = require('../lib/utils')
@@ -17,17 +18,31 @@ const {
 module.exports = function (app) {
   const route = express.Router()
   route.use(bodyParser.json())
-  route.use(getUserEmail)
   app.use('/api', route)
 
-  route.post('/unfurl', async (req, res) => {
+  route.post('/unfurl', getUserEmail, async (req, res) => {
     const { access_token, taskUrl } = req.body
-    return parseIdFromTask(taskUrl)
-      .then(id =>
-        addPermission(id, access_token).then(() => makeCopy(id, req.userEmail))
-      )
-      .then(formatTask)
-      .then(task => res.json({ ok: true, tasks: [task] }))
+    try {
+      const id = await parseIdFromTask(taskUrl)
+      await addPermission(id, access_token)
+      const copy = await makeCopy(id, req.userEmail)
+      addTemplate(copy)
+      const task = await formatTask(copy)
+      return res.json({ ok: true, tasks: [task] })
+    } catch (e) {
+      console.error(e)
+      return res.json({ ok: false, error: e })
+    }
+  })
+
+  route.post('/copy', getUserEmail, async (req, res) => {
+    const { tasks = [], access_token } = req.body
+    return fetchFormCopies(getNewForms(tasks), req.userEmail)
+      .then(mergeCopies(tasks))
+      .then(createInstances)
+      .then(instances => {
+        return res.json({ ok: true, instances })
+      })
       .catch(e => {
         console.error(e)
         return res.json({ ok: false, error: e })
@@ -50,19 +65,5 @@ module.exports = function (app) {
     } catch (e) {
       return res.send({ ok: false, error: e })
     }
-  })
-
-  route.post('/copy', async (req, res) => {
-    const { tasks = [], access_token } = req.body
-    return fetchFormCopies(getNewForms(tasks), req.userEmail)
-      .then(mergeCopies(tasks))
-      .then(createInstances)
-      .then(instances => {
-        return res.json({ ok: true, instances })
-      })
-      .catch(e => {
-        console.error(e)
-        return res.json({ ok: false, error: e })
-      })
   })
 }

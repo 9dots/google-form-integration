@@ -1,25 +1,34 @@
 import drive from './google'
+
 const toRegexp = require('path-to-regexp')
 const fetch = require('isomorphic-fetch')
 const admin = require('firebase-admin')
 const htmlToJson = require('./form')
 const url = require('url')
 
-const formsUrl = process.env.FORMS_APP_SCRIPT
-const tasksRef = admin.firestore().collection('tasks')
-const pathRe = toRegexp('/forms/d/:id/edit')
+const templatesRef = admin.firestore().collection('templates')
 const responsesRef = admin.firestore().collection('responses')
+const tasksRef = admin.firestore().collection('tasks')
+
+const formsUrl = process.env.FORMS_APP_SCRIPT
+const pathRe = toRegexp('/forms/d/:id/edit')
 
 module.exports = {
   fetchFormCopies,
   createInstances,
   parseIdFromTask,
-  makeCopy,
   addPermission,
   getNewForms,
   getInstance,
   mergeCopies,
-  formatTask
+  addTemplate,
+  formatTask,
+  makeCopy
+}
+
+async function addTemplate (copy) {
+  const id = await parseIdFromTask(copy.form)
+  return templatesRef.doc(id).set(copy)
 }
 
 async function addPermission (id, access_token, email) {
@@ -43,7 +52,6 @@ async function addPermission (id, access_token, email) {
     }
   })
   return Promise.all([addPermission, setReaderCanCopy]).catch(e => {
-    console.error(e)
     return Promise.reject('insufficient_permissions')
   })
 }
@@ -118,37 +126,41 @@ async function fetchFormCopies (newForms, viewer) {
       return Promise.resolve({ form: snap.get('form') })
     }
     const id = await parseIdFromTask(task.taskUrl)
+    const template = await getTemplate(id)
     const { ok, error, form, published, summary } = await makeCopy(id, viewer)
     if (!ok) return Promise.reject(error)
-    const json = await publishedToJson(published)
-    tasksRef.doc(task.task).set({ form, json, summary })
+    const [json, { action }] = await Promise.all([
+      publishedToJson(published),
+      publishedToJson(template)
+    ]).catch(console.error)
+    tasksRef
+      .doc(task.task)
+      .set({ form, summary, json: { ...json, action: [json.action, action] } })
     return { form }
   }
 }
 
+async function getTemplate (id) {
+  const snap = await templatesRef.doc(id).get()
+  if (snap.exists) {
+    return snap.get('published')
+  }
+  return appScriptRequest('getPublished', id).then(({ published }) => published)
+}
+
 async function makeCopy (id, viewer) {
+  return appScriptRequest('copy', id, viewer)
+}
+
+function appScriptRequest (type, formId, viewer) {
   return fetch(formsUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ type: 'copy', formId: id, viewer })
+    body: JSON.stringify({ type, formId, viewer })
   }).then(res => res.json())
 }
-
-// async function makeCopy (id, token) {
-//   const res = await fetch(
-//     `https://www.googleapis.com/drive/v3/files/${id}/copy?supportsTeamDrives=true`,
-//     {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//         Authorization: 'Bearer ' + token
-//       }
-//     }
-//   )
-//   return res.json()
-// }
 
 async function parseIdFromTask (taskUrl) {
   try {

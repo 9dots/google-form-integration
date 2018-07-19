@@ -145,7 +145,6 @@ function extractImages (doc) {
         const widget = field.widgets.slice()[0] || null
         const imgs = doc(`[data-item-id=${field.id}] img`).get()
         imgs.forEach(img => {
-          // console.log(img.attribs.src)
           if (widget.image && !widget.src) {
             widget.src = img.attribs.src || ''
           }

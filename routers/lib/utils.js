@@ -29,13 +29,15 @@ module.exports = {
 
 function getErrorMessage (err) {
   const errorMap = {
-    invalid_form: {
-      field: 'url',
-      message:
-        'Google Form url is invalid. Please make sure to use the edit link from the browser.'
-    }
+    invalid_form: [
+      {
+        field: 'url',
+        message:
+          'Google Form url is invalid. Please make sure to use the edit link from the browser.'
+      }
+    ]
   }
-  return errorMap[err] || err
+  return { error: err, errorDetails: errorMap[err] }
 }
 
 async function addTemplate (copy) {

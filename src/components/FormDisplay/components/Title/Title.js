@@ -6,13 +6,11 @@ import './Title.less'
 const Title = props => {
   const { title, desc } = props
   return (
-    <Layout.Header className='form-header'>
-      <h2>
-        {title}
-        {/* <br /> */}
-        {/* <small>{desc}</small> */}
-      </h2>
-    </Layout.Header>
+    <h2>
+      {title}
+      {/* <br /> */}
+      {/* <small>{desc}</small> */}
+    </h2>
   )
 }
 

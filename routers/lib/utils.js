@@ -50,7 +50,7 @@ async function addPermission (id, access_token) {
   const addPermission = authedDrive.permissions.create({
     fileId: id,
     supportsTeamDrives: true,
-    access_token: access_token,
+    access_token,
     requestBody: {
       role: 'reader',
       type: 'anyone'
@@ -59,7 +59,7 @@ async function addPermission (id, access_token) {
   const setReaderCanCopy = authedDrive.files.update({
     fileId: id,
     supportsTeamDrives: true,
-    access_token: access_token,
+    access_token,
     requestBody: {
       viewersCanCopyContent: true,
       copyRequiresWriterPermission: false
@@ -73,7 +73,7 @@ async function addPermission (id, access_token) {
 function formatTask ({ title, form }) {
   return {
     displayName: title,
-    type: 'practice',
+    type: 'quiz',
     url: form
   }
 }

@@ -31,7 +31,7 @@ function getForm (data) {
     1
   )
   return {
-    title: data[3],
+    title: extraData[8],
     path: data[2],
     action: data[14],
     askEmail: !!otherExtraData[4],

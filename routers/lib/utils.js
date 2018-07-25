@@ -45,7 +45,7 @@ async function addTemplate (copy) {
   return templatesRef.doc(id).set(copy)
 }
 
-async function addPermission (id, access_token, email) {
+async function addPermission (id, access_token) {
   const authedDrive = drive(access_token)
   const addPermission = authedDrive.permissions.create({
     fileId: id,

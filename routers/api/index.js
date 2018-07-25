@@ -44,7 +44,7 @@ module.exports = function (app) {
         return res.json({ ok: true, instances })
       })
       .catch(e => {
-        console.error(e)
+        console.error('error', e)
         return res.json({ ok: false, ...getErrorMessage(e) })
       })
   })

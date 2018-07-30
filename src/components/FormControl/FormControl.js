@@ -10,7 +10,6 @@ const FormControl = props => {
     page,
     data: { fields },
     submitted,
-    handleSubmit,
     submit,
     isFirst,
     isLast
@@ -20,16 +19,23 @@ const FormControl = props => {
 
   return (
     <span>
-      <Button disabled={isFirst} onClick={back} className='form-float-btn back'>
-        <Icon type='left' />
-      </Button>
-      <Button
-        type='primary'
-        onClick={isLast ? submit : next}
-        className={`form-float-btn next ${isLast && 'last'}`}>
-        {isLast && 'Submit '}
-        <Icon type='right' />
-      </Button>
+      {!submitted && (
+        <span>
+          <Button
+            disabled={isFirst}
+            onClick={back}
+            className='form-float-btn back'>
+            <Icon type='left' />
+          </Button>
+          <Button
+            type='primary'
+            onClick={isLast ? submit : next}
+            className={`form-float-btn next ${isLast && 'last'}`}>
+            {isLast && 'Submit '}
+            <Icon type='right' />
+          </Button>
+        </span>
+      )}
       <div className='form-control-wrap'>
         <Row
           type='flex'

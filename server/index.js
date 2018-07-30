@@ -32,11 +32,10 @@ app.get('/teacher/:id', async (req, res) => {
     .doc(id)
     .get()
     .then(doc => doc.get('form'))
-    .then(url => url + '#responses')
   if (!url) {
     return res.send('not found')
   }
-  return res.redirect(url)
+  return res.redirect(url + '#responses')
 })
 
 app.get('/form/:id', async (req, res) => {

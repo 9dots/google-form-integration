@@ -35,9 +35,9 @@ module.exports = function (app) {
     }
   })
 
-  route.post('/copy', getUserEmail, async (req, res) => {
-    const { tasks = [], access_token } = req.body
-    return fetchFormCopies(getNewForms(tasks), req.userEmail)
+  route.post('/copy', async (req, res) => {
+    const { tasks = [] } = req.body
+    return fetchFormCopies(getNewForms(tasks))
       .then(mergeCopies(tasks))
       .then(createInstances)
       .then(instances => {

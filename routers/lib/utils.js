@@ -98,7 +98,7 @@ async function createInstances (tasks) {
   writes.commit()
   return tasks.map(task => ({
     instance: url.resolve(
-      task.update.host,
+      process.env.API_HOST,
       `form/${task.task}?id=${task.update.id}`
     ),
     id: task.update.id

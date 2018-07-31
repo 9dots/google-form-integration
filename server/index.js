@@ -69,13 +69,14 @@ app.get('/form/:id', async (req, res) => {
   res.end()
 })
 
-app.get('/_ah/warmup', (req, res) => {
+app.get('/_ah/warmup', (_, res) => {
   try {
     admin.initializeApp({
       credential: admin.credential.cert(cert),
       databaseURL: 'https://forms-integration-93a90.firebaseio.com'
     })
   } catch (e) {}
+  res.json({ ok: true })
 })
 
 api(app)

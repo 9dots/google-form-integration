@@ -11,10 +11,12 @@ import cors from 'cors'
 
 const cert = getServiceAccount()
 
-admin.initializeApp({
-  credential: admin.credential.cert(cert),
-  databaseURL: 'https://forms-integration-93a90.firebaseio.com'
-})
+try {
+  admin.initializeApp({
+    credential: admin.credential.cert(cert),
+    databaseURL: 'https://forms-integration-93a90.firebaseio.com'
+  })
+} catch (e) {}
 
 const firestore = admin.firestore()
 const tasksCol = firestore.collection('tasks')
@@ -65,6 +67,15 @@ app.get('/form/:id', async (req, res) => {
     )
   )
   res.end()
+})
+
+app.get('/_ah/warmup', (req, res) => {
+  try {
+    admin.initializeApp({
+      credential: admin.credential.cert(cert),
+      databaseURL: 'https://forms-integration-93a90.firebaseio.com'
+    })
+  } catch (e) {}
 })
 
 api(app)

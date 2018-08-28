@@ -71,6 +71,7 @@ app.get('/form/:id', async (req, res) => {
 
 app.get('/_ah/warmup', (_, res) => {
   try {
+    require('../src/components/FormDisplay')
     admin.initializeApp({
       credential: admin.credential.cert(cert),
       databaseURL: 'https://forms-integration-93a90.firebaseio.com'

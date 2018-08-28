@@ -1,5 +1,6 @@
 import drive from './google'
 
+const formatResponses = require('./formatResponses')
 const toRegexp = require('path-to-regexp')
 const fetch = require('isomorphic-fetch')
 const admin = require('firebase-admin')
@@ -24,7 +25,8 @@ module.exports = {
   mergeCopies,
   addTemplate,
   formatTask,
-  makeCopy
+  makeCopy,
+  getTask
 }
 
 function getErrorMessage (err) {
@@ -66,6 +68,7 @@ async function addPermission (id, access_token) {
     }
   })
   return Promise.all([addPermission, setReaderCanCopy]).catch(e => {
+    console.error(e)
     return Promise.reject('insufficient_permissions')
   })
 }
@@ -78,8 +81,15 @@ function formatTask ({ title, form }) {
   }
 }
 
-async function getInstance (id, field) {
+function getInstance (id, field) {
   return responsesRef
+    .doc(id)
+    .get()
+    .then(snap => (field ? snap.get(field) : snap.data()))
+}
+
+function getTask (id, field) {
+  return tasksRef
     .doc(id)
     .get()
     .then(snap => (field ? snap.get(field) : snap.data()))
@@ -101,6 +111,7 @@ async function createInstances (tasks) {
       process.env.API_HOST,
       `form/${task.task}?id=${task.update.id}`
     ),
+    responses: formatResponses({}, task.fields),
     id: task.update.id
   }))
 }
@@ -108,10 +119,11 @@ async function createInstances (tasks) {
 function mergeCopies (tasks) {
   return copies =>
     copies.reduce(
-      (acc, res) =>
+      (acc, copy) =>
         acc.map(task => ({
           ...task,
-          taskUrl: res.task === task.task ? res.form : task.taskUrl
+          fields: copy.fields,
+          taskUrl: copy.task === task.task ? copy.form : task.taskUrl
         })),
       tasks
     )
@@ -137,7 +149,10 @@ async function fetchFormCopies (newForms, viewer) {
 
   async function maybeFetch (task, snap, viewer) {
     if (snap.exists) {
-      return Promise.resolve({ form: snap.get('form') })
+      return Promise.resolve({
+        form: snap.get('form'),
+        fields: snap.get('json.fields')
+      })
     }
     const id = await parseIdFromTask(task.taskUrl)
     const template = await getTemplate(id)
@@ -150,7 +165,7 @@ async function fetchFormCopies (newForms, viewer) {
     tasksRef
       .doc(task.task)
       .set({ form, summary, json: { ...json, action: [json.action, action] } })
-    return { form }
+    return { form, fields: json.fields }
   }
 }
 

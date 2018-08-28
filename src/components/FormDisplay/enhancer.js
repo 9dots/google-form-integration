@@ -71,15 +71,18 @@ export default compose(
           { submitted: true, data: filter(val => val !== undefined, values) },
           { merge: true }
         )
-      props.setSubmitted()
-      f(
-        `/api/externalUpdate`,
-        JSON.stringify({
-          progress: 100,
-          completed: true,
-          id: props.activityId
+        .then(() => {
+          f(
+            `/api/externalUpdate`,
+            JSON.stringify({
+              progress: 100,
+              completed: true,
+              id: props.activityId
+            })
+          )
         })
-      ).catch(console.error)
+        .catch(console.error)
+      props.setSubmitted()
     },
     validate: validate,
     mapPropsToValues: props =>
@@ -87,20 +90,23 @@ export default compose(
   }),
   withHandlers({
     updateProgress: props => values => {
-      f(
-        `/api/externalUpdate`,
-        JSON.stringify({
-          progress: getProgress(values, props.widgets),
-          completed: false,
-          id: props.activityId
-        })
-      ).catch(console.error)
       responsesCol
         .doc(props.activityId)
         .set(
           { data: filter(val => val !== undefined, values) },
           { merge: true }
         )
+        .then(() => {
+          f(
+            `/api/externalUpdate`,
+            JSON.stringify({
+              progress: getProgress(values, props.widgets),
+              completed: false,
+              id: props.activityId
+            })
+          )
+        })
+        .catch(console.error)
     },
     onKeyPress: () => e => {
       if (e.target.type !== 'textarea' && e.which === 13 /* Enter */) {
@@ -173,13 +179,6 @@ function initValues (data = {}, widgets, response = {}) {
     ...response
   }
 }
-
-// function checkEmail (data = {}, values) {
-//   if (data.askEmail && !values.emailAddress) {
-//     return { emailAddress: 'Required' }
-//   }
-//   return {}
-// }
 
 function cast (values) {
   const toObjWithValues = toObj(values)

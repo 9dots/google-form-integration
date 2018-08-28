@@ -1,4 +1,5 @@
 const getUserEmail = require('../middleware/getUserEmail')
+const formatResponses = require('../lib/formatResponses')
 const bodyParser = require('body-parser')
 const fetch = require('isomorphic-fetch')
 const express = require('express')
@@ -13,7 +14,8 @@ const {
   getInstance,
   addTemplate,
   formatTask,
-  makeCopy
+  makeCopy,
+  getTask
 } = require('../lib/utils')
 
 module.exports = function (app) {
@@ -50,7 +52,8 @@ module.exports = function (app) {
   })
 
   route.post('/externalUpdate', async (req, res) => {
-    const update = await getInstance(req.body.id, 'update')
+    const { update, task, data } = await getInstance(req.body.id)
+    const taskData = await getTask(task)
     try {
       const response = await fetch(update.host, {
         method: 'POST',
@@ -58,11 +61,15 @@ module.exports = function (app) {
           'Content-Type': 'application/json',
           Authorization: 'Apikey ' + process.env.API_KEY
         },
-        body: JSON.stringify(req.body)
+        body: JSON.stringify({
+          ...req.body,
+          responses: formatResponses(data, taskData.json.fields)
+        })
       })
       const body = await response.json()
       return res.send(body)
     } catch (e) {
+      console.error(e)
       return res.send({ ok: false, ...getErrorMessage(e) })
     }
   })

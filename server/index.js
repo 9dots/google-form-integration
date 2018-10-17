@@ -80,6 +80,8 @@ app.get('/_ah/warmup', (_, res) => {
   res.json({ ok: true })
 })
 
+app.get('ping', (_, res) => res.status(200).end())
+
 api(app)
 app.listen(process.env.PORT || 5000, () =>
   console.log('listening on port: ' + (process.env.PORT || 5000))

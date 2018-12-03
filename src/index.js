@@ -6,6 +6,14 @@ import 'firebase/database'
 import React from 'react'
 import './index.less'
 
+try {
+  window.Sentry.init({
+    dsn: 'https://bef85b8f97274f2c96b311f815b50999@sentry.io/1336170'
+  })
+} catch (e) {
+  console.error('can not connect to sentry')
+}
+
 const pathRe = toRegexp('/form/:id')
 
 firebase.initializeApp({

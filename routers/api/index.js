@@ -53,8 +53,8 @@ module.exports = function (app) {
 
   route.post('/externalUpdate', async (req, res) => {
     const { update, task, data } = await getInstance(req.body.id)
-    const taskData = await getTask(task)
     try {
+      const taskData = await getTask(task)
       const response = await fetch(update.host, {
         method: 'POST',
         headers: {

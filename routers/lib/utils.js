@@ -88,7 +88,8 @@ function getInstance (id, field) {
     .then(snap => (field ? snap.get(field) : snap.data()))
 }
 
-function getTask (id, field) {
+function getTask (id = '', field) {
+  console.log(id, field)
   return tasksRef
     .doc(id)
     .get()

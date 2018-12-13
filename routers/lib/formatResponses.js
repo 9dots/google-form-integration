@@ -14,7 +14,7 @@ function getResponses (data, fields) {
       .map(getWidgetIds)
       .map(ids => getValue(data, ids))
       .map(normalizeValues)
-      .reduce((acc, next) => (acc ? normalizeValues(acc.concat(next)) : next))
+      .reduce((acc, next) => (acc ? normalizeValues(acc.concat(next)) : next), [])
   }
 }
 

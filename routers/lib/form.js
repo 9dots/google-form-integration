@@ -147,6 +147,7 @@ function extractImages (doc) {
         imgs.forEach(img => {
           if (widget.image && !widget.src) {
             widget.src = img.attribs.src || ''
+            return
           }
           for (let i = 0; i < (widget.options || []).length; i++) {
             let o = widget.options[i]
